@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html class="sl-theme-dark" lang="en">
+	<head>
+		<!-- initialize theme vars
+    https://coolors.co/10002b-240046-3c096c-5a189a-7b2cbf-9d4edd-c77dff-e0aaff -->
+
+		<!-- initialize externals -->
+		<meta property="og:title" content="GX-GamesCrack" />
+		<meta property="description" content="GX-GamesCrack is the best unblocked games site. With over 250 games and an account system, no other websites come close to Selenite." />
+		<meta name="google-site-verification" content="GK-0wAC-lRxMyoeB0WKRjrkFgN_7zoqAg8dTQwd4Zjo" />
+		<meta content="/favicon.png" property="og:image" />
+		<meta content="#c77dff" data-react-helmet="true" name="theme-color" />
+		<meta name="googlebot" content="index, follow, snippet" />
+		<link rel="canonical" href="https://gx-gamescrack.github.io/" />
+		<meta property="og:title" content="GX-GamesCrack">
+		<meta property="og:type" content="website">
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+
+		<!-- initialize my stuff -->
+		<script src="/js/all.min.js"></script>
+		<script src="/js/main.js"></script>
+		<script src="/js/widget.js"></script>
+		<script>
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("/data/quotes.json")
+    .then((response) => {
+      if (!response.ok) throw new Error("Quotes file not found");
+      return response.json();
+    })
+    .then((data) => {
+      const randomQuote = data[Math.floor(Math.random() * data.length)];
+      document.getElementById("randomquote").textContent = randomQuote;
+    })
+    .catch((error) => {
+      console.error("Error loading quotes:", error);
+      document.getElementById("randomquote").textContent =
+        "better thank me for this unblocked website";
+    });
+});
+		</script>
+
+		<link rel="stylesheet" href="/style.css" />
+		<link rel="manifest" href="/manifest.json" />
+
+		<!-- seo + other things -->
+		<title>GX-GamesCrack V2</title>
+		<link rel="icon" href="/favicon.ico" />
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3415518411898563" crossorigin="anonymous"></script>
+	</head>
+	<alerts> </alerts>
+	<body id="noscroll">
+		<header>
+			<a href="/index.html">Home</a>
+			<a href="/bookmarklets.html">Bookmarklets</a>
+			<a href="/projects.html" title="Games (Unblocked)">Games</a>
+			<a href="/apps.html">Apps</a>
+			<a href="/settings.html">Settings</a>
+			<a id="blank" href="#">Open Blank</a>
+			<a<img src="/img/user.svg" alt="User Account" /></a>
+		</header>
+		<main id="main" class="noscroll">
+			<b style="font-weight: 800px"><h1 class="chan">WELCOME</h1></b>
+			<noscript>enable javascript if you want the games to actually load</noscript>
+			<p id="randomquote"></p>
+			<div class="samerow">
+				<div class="img-container">
+					<a href="https://xenotech-x.github.io"><img src="img/user_index.svg" /></a>
+				</div>
+				<div class="img-container">
+					<a href="projects.html"><img src="img/games.svg" /></a>
+				</div>
+				<div class="img-container">
+					<a href="https://discord.gg/KddjwqdRK"><img src="img/discord.svg" /></a>
+				</div>
+			</div>
+		</main>
+		<footer class="noscroll">
+			<a href="https://github.com/gx-gamescrack/gx-gamescrack.github.io">Source</a>
+			<a href="https://discord.gg/KddjwqdRK">Discord</a>
+			<a href="/suggest.html">Suggestions & Bugs</a>
+			<a href="/contact.html">Contact</a>
+			<a href="/support.html">Donate</a>
+			<a href="/about.html">About</a>
+		</footer>
+	</body>
+</html>

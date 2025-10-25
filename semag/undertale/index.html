@@ -3,44 +3,40 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Undertale Launcher</title>
+<title>Undertale</title>
 <style>
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-    background:#0c0c0c;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
-    margin:0;
-  }
-  .card {
-    background:#111;
-    border-radius:12px;
-    padding:30px;
-    max-width:900px;
-    width:90%;
-    border:2px solid #8B0000;
-    box-shadow:0 0 24px rgba(139,0,0,0.25);
-    text-align:center;
-  }
-  pre {
-    background: rgba(255,255,255,0.03);
-    padding:8px;
-    border-radius:6px;
-    overflow:auto;
-    max-height:200px;
-    text-align:left;
-  }
-  #status { font-weight:bold; color:#bdff00; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background:#0c0c0c;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  margin:0;
+}
+.card {
+  background:#111;
+  border-radius:12px;
+  padding:20px;
+  width:900px;
+  border:2px solid #8B0000;
+  box-shadow:0 0 24px rgba(139,0,0,0.25);
+}
+pre {
+  background: rgba(255,255,255,0.03);
+  padding:8px;
+  border-radius:6px;
+  overflow:auto;
+  max-height:200px;
+}
 </style>
 </head>
 <body>
 <div class="card">
   <h2>Undertale Launcher</h2>
   <p>Ripped by Jon Stearns</p>
-  <div id="log"><strong>Status:</strong> <span id="status">idle</span></div>
+  <div><strong>Status:</strong> <span id="status">idle</span></div>
   <pre id="messages"></pre>
 </div>
 
@@ -56,77 +52,63 @@
     'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part7'
   ];
 
-  const localScripts = ['runner.data', 'runner.wasm', 'runner.js', 'index.js'];
   const statusEl = document.getElementById('status');
   const msgEl = document.getElementById('messages');
+  const log = t => { msgEl.textContent += t + "\n"; msgEl.scrollTop = msgEl.scrollHeight; };
+  const setStatus = s => { if(statusEl) statusEl.textContent = s; };
 
-  function log(text) {
-    msgEl.textContent += text + '\n';
-    msgEl.scrollTop = msgEl.scrollHeight;
-  }
-
-  function setStatus(text) {
-    if(statusEl) statusEl.textContent = text;
-  }
-
-  async function fetchArrayBufferSafe(url) {
+  async function fetchPart(url) {
     setStatus('Fetching ' + url.split('/').pop());
-    log('Fetching: ' + url.split('/').pop());
+    log('Fetching ' + url.split('/').pop());
     const res = await fetch(url);
-    if(!res.ok) throw new Error(url + ' → HTTP ' + res.status);
+    if(!res.ok) throw new Error('Failed: ' + url);
     return await res.arrayBuffer();
   }
 
-  async function loadGameUnx() {
-    setStatus('Fetching game parts...');
-    log('Fetching parts in order...');
+  async function combineParts() {
     const buffers = [];
-    let total = 0;
-    for(const url of parts){
-      const buf = await fetchArrayBufferSafe(url);
-      buffers.push(buf);
-      total += buf.byteLength;
-      log('  - fetched ' + url.split('/').pop() + ' (' + Math.round(buf.byteLength/1024) + ' KB)');
-    }
-    const combined = new Uint8Array(total);
+    for(const p of parts) buffers.push(await fetchPart(p));
+    setStatus('Combining parts');
+    const totalLength = buffers.reduce((sum,b)=>sum+b.byteLength,0);
+    const combined = new Uint8Array(totalLength);
     let offset = 0;
-    for(const b of buffers){ combined.set(new Uint8Array(b), offset); offset += b.byteLength; }
-    log('Combined size: ' + Math.round(combined.byteLength/1024) + ' KB');
-    return new Blob([combined]);
+    for(const b of buffers) { combined.set(new Uint8Array(b), offset); offset+=b.byteLength; }
+    log('Combined size: ' + Math.round(totalLength/1024) + ' KB');
+    return combined.buffer;
   }
 
-  async function injectLocalScripts() {
-    setStatus('Loading local scripts...');
-    for(const f of localScripts){
-      log('Injecting ' + f);
-      const s = document.createElement('script');
-      s.src = f;
-      s.async = false;
-      document.body.appendChild(s);
-    }
-  }
-
-  try {
-    const gameBlob = await loadGameUnx();
+  async function loadGame() {
+    setStatus('Preparing game');
+    const combinedBuffer = await combineParts();
+    const gameBlob = new Blob([combinedBuffer]);
     const gameUrl = URL.createObjectURL(gameBlob);
 
     // Override fetch for game.unx
     const originalFetch = window.fetch;
-    window.fetch = async function(input, options) {
-      if((typeof input === 'string' && input.includes('game.unx')) ||
-         (input instanceof Request && input.url.includes('game.unx'))){
-        return originalFetch.call(this, gameUrl, options);
+    window.fetch = async function(input, opts) {
+      if((typeof input==='string' && input.includes('game.unx')) ||
+         (input instanceof Request && input.url.includes('game.unx'))) {
+        return originalFetch.call(this, gameUrl, opts);
       }
-      return originalFetch.call(this, input, options);
+      return originalFetch.call(this,input,opts);
     };
 
-    await injectLocalScripts();
-    setStatus('Game should boot now...');
+    // Load local runner.js and index.js
+    for(const f of ['runner.js','index.js']) {
+      await new Promise((resolve,reject)=>{
+        const s=document.createElement('script');
+        s.src=f; s.async=false;
+        s.onload=resolve; s.onerror=()=>reject('Failed to load '+f);
+        document.body.appendChild(s);
+      });
+    }
+
+    setStatus('Game starting...');
     log('Game starting...');
-  } catch(e) {
-    setStatus('Error');
-    log('ERROR: ' + e.message);
   }
+
+  // Auto-start
+  try { await loadGame(); } catch(e) { setStatus('Error'); log(e.message); }
 })();
 </script>
 </body>

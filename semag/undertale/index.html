@@ -1,125 +1,136 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Undertale</title>
- <style>
-  body { 
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; 
-    background:#0c0c0c; color:#fff; 
-    display:flex; align-items:center; justify-content:center; height:100vh; margin:0; 
-    flex-direction: column;
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Undertale</title>
+<style>
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    background:#0c0c0c;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    margin:0;
   }
-  .card { 
-    background:#111; 
-    border-radius:12px; 
-    padding:30px; /* a bit more padding */
-    max-width:900px; /* wider than before */
-    width: 90%; /* responsive */
-    border:2px solid #8B0000; 
-    box-shadow:0 0 24px rgba(139,0,0,0.25); 
+  .card {
+    background:#111;
+    border-radius:12px;
+    padding:30px;
+    max-width:900px;
+    width:90%;
+    border:2px solid #8B0000;
+    box-shadow:0 0 24px rgba(139,0,0,0.25);
+    text-align:center;
   }
-  pre { 
-    background: rgba(255,255,255,0.03); padding:8px; border-radius:6px; 
-    overflow:auto; max-height:200px; 
+  pre {
+    background: rgba(255,255,255,0.03);
+    padding:8px;
+    border-radius:6px;
+    overflow:auto;
+    max-height:200px;
+    text-align:left;
   }
   #status { font-weight:bold; color:#bdff00; }
 </style>
 </head>
 <body>
-  <div class="card" role="main" aria-live="polite">
-    <h2>Undertale Launcher</h2>
-    <p>Ripped by Jon Stearns</p>
-    <div id="log"><strong>Status:</strong> <span id="status">Starting...</span></div>
-    <pre id="messages"></pre>
-  </div>
+<div class="card">
+  <h2>Undertale Launcher</h2>
+  <p>Ripped by Jon Stearns</p>
+  <div id="log"><strong>Status:</strong> <span id="status">idle</span></div>
+  <pre id="messages"></pre>
+</div>
 
-  <script>
-  (function () {
-    const parts = [
-      'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part1',
-      'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part2',
-      'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part3',
-      'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part4',
-      'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part5',
-      'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part6',
-      'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part7'
-    ];
+<script>
+(async function(){
+  const partsFolder = 'game-files';
+  const parts = [
+    'game.unx.part1',
+    'game.unx.part2',
+    'game.unx.part3',
+    'game.unx.part4',
+    'game.unx.part5',
+    'game.unx.part6',
+    'game.unx.part7'
+  ].map(f => `${partsFolder}/${f}`);
 
-    const localFiles = ['runner.wasm', 'runner.data', 'runner.js', 'index.js']; 
-    const statusEl = document.getElementById('status');
-    const msgEl = document.getElementById('messages');
-    const log = (t)=>{ msgEl.textContent += t + "\n"; msgEl.scrollTop = msgEl.scrollHeight; };
-    const setStatus = s => { if(statusEl) statusEl.textContent = s; };
+  const localFiles = ['runner.wasm','runner.data','runner.js','index.js'];
+  const statusEl = document.getElementById('status');
+  const msgEl = document.getElementById('messages');
+  const log = t => { msgEl.textContent += t + "\n"; msgEl.scrollTop = msgEl.scrollHeight; };
+  const setStatus = s => { if(statusEl) statusEl.textContent = s; };
 
-    async function fetchArrayBufferSafe(path) {
-      setStatus('Loading ' + path.split('/').pop());
-      log('Fetching ' + path.split('/').pop());
-      try {
-        const res = await fetch(path);
-        if (!res.ok) throw new Error(res.status);
-        return await res.arrayBuffer();
-      } catch (e) {
-        throw new Error('Failed to fetch ' + path + ': ' + e.message);
-      }
+  async function fetchArrayBufferSafe(path){
+    setStatus('Loading ' + path.split('/').pop());
+    log('Fetching ' + path.split('/').pop() + '...');
+    const res = await fetch(path);
+    if(!res.ok) throw new Error(path + ' → HTTP ' + res.status);
+    const buf = await res.arrayBuffer();
+    log('Fetched ' + path.split('/').pop() + ' (' + Math.round(buf.byteLength/1024) + ' KB)');
+    return buf;
+  }
+
+  async function combineParts(){
+    setStatus('Combining parts');
+    log('Combining parts...');
+    const buffers = [];
+    let total = 0;
+    for(const p of parts){
+      const buf = await fetchArrayBufferSafe(p);
+      buffers.push(buf);
+      total += buf.byteLength;
     }
+    const combined = new Uint8Array(total);
+    let offset=0;
+    for(const b of buffers){ combined.set(new Uint8Array(b), offset); offset+=b.byteLength; }
+    log('Combined size: ' + Math.round(combined.byteLength/1024) + ' KB');
+    return combined.buffer;
+  }
 
-    async function combineParts() {
-      const buffers = [];
-      let total = 0;
-      for (const p of parts) {
-        const buf = await fetchArrayBufferSafe(p);
-        buffers.push(buf);
-        total += buf.byteLength;
-      }
-      const combined = new Uint8Array(total);
-      let offset = 0;
-      for (const b of buffers) { combined.set(new Uint8Array(b), offset); offset += b.byteLength; }
-      return combined.buffer;
-    }
-
-    async function injectLocalScripts() {
-      setStatus('Loading runner scripts...');
-      for (const f of ['runner.js','index.js']) {
+  async function injectLocalScripts(){
+    setStatus('Loading scripts');
+    log('Injecting runner.js and index.js...');
+    for(const f of ['runner.js','index.js']){
+      await new Promise((res,rej)=>{
         const s = document.createElement('script');
         s.src = f;
-        s.async = false;
-        s.onload = () => log('Loaded ' + f);
-        s.onerror = () => log('Failed to load ' + f);
+        s.onload = ()=> { log('Loaded ' + f); res(); };
+        s.onerror = ()=> { log('Failed to load ' + f); rej(); };
         document.head.appendChild(s);
-      }
+      });
     }
+  }
 
-    async function start() {
-      try {
-        for (const f of localFiles) {
-          const ok = await fetch(f, {method:'HEAD'}).then(r=>r.ok).catch(()=>false);
-          if (!ok) log('  - NOTE: ' + f + ' not found locally.');
-        }
-        const combinedBuf = await combineParts();
-        const gameBlob = new Blob([combinedBuf]);
-        const gameUrl = URL.createObjectURL(gameBlob);
-        const originalFetch = window.fetch;
-        window.fetch = async function (input, options) {
-          if ((typeof input === 'string' && input.includes('game.unx')) ||
-              (input instanceof Request && input.url.includes('game.unx'))) {
-            return originalFetch.call(this, gameUrl, options);
-          }
-          return originalFetch.call(this, input, options);
-        };
-        await injectLocalScripts();
-        setStatus('Game starting...');
-        log('All parts loaded. Game booting...');
-      } catch (err) {
-        setStatus('error');
-        log('ERROR: ' + err.message);
-      }
+  try{
+    setStatus('Starting launcher');
+    log('Checking local files...');
+    for(const f of localFiles){
+      const ok = await fetch(f,{method:'HEAD'}).then(r=>r.ok).catch(()=>false);
+      if(!ok) log('  - NOTE: ' + f + ' not found locally.');
     }
-
-    // Start automatically
-    window.addEventListener('load', start);
-  })();
-  </script>
+    const combinedBuf = await combineParts();
+    // Provide the combined game.unx via blob to override fetch
+    const gameBlob = new Blob([combinedBuf]);
+    const gameUrl = URL.createObjectURL(gameBlob);
+    const originalFetch = window.fetch;
+    window.fetch = async function(input,options){
+      if((typeof input==='string' && input.includes('game.unx')) ||
+         (input instanceof Request && input.url.includes('game.unx'))){
+           return originalFetch.call(this, gameUrl, options);
+      }
+      return originalFetch.call(this,input,options);
+    };
+    await injectLocalScripts();
+    setStatus('Game should boot now');
+    log('Game starting...');
+  }catch(err){
+    setStatus('error');
+    log('ERROR: '+err.message);
+  }
+})();
+</script>
 </body>
 </html>

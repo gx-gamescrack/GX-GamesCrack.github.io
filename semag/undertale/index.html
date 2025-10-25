@@ -4,23 +4,35 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Undertale</title>
-  <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:#0c0c0c;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0; }
-    .card { background:#111;border-radius:12px;padding:20px;max-width:720px;border:2px solid #8B0000; box-shadow:0 0 24px rgba(139,0,0,0.25); }
-    pre { background: rgba(255,255,255,0.03); padding:8px;border-radius:6px; overflow:auto; max-height:200px; }
-    button { margin-top:12px; padding:8px 12px; border-radius:8px;border:0;background:#8B0000;color:#fff;cursor:pointer;font-weight:600 }
-  </style>
+ <style>
+  body { 
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; 
+    background:#0c0c0c; color:#fff; 
+    display:flex; align-items:center; justify-content:center; height:100vh; margin:0; 
+    flex-direction: column;
+  }
+  .card { 
+    background:#111; 
+    border-radius:12px; 
+    padding:30px; /* a bit more padding */
+    max-width:900px; /* wider than before */
+    width: 90%; /* responsive */
+    border:2px solid #8B0000; 
+    box-shadow:0 0 24px rgba(139,0,0,0.25); 
+  }
+  pre { 
+    background: rgba(255,255,255,0.03); padding:8px; border-radius:6px; 
+    overflow:auto; max-height:200px; 
+  }
+  #status { font-weight:bold; color:#bdff00; }
+</style>
 </head>
 <body>
   <div class="card" role="main" aria-live="polite">
     <h2>Undertale Launcher</h2>
-    <p>Undertale Fixed Up By Jon Stearns</p>
-    <div id="log"><strong>Status:</strong> <span id="status">idle</span></div>
+    <p>Ripped by Jon Stearns</p>
+    <div id="log"><strong>Status:</strong> <span id="status">Starting...</span></div>
     <pre id="messages"></pre>
-    <button id="startBtn">Pirate Game</button>
-    <p style="margin-top:10px;color:#ccc;font-size:.9em">
-      Thid Works By Feching Files From My Alt Github Account, GX-Storage And Then Running Them Via Https 
-    </p>
   </div>
 
   <script>
@@ -35,16 +47,18 @@
       'https://cdn.jsdelivr.net/gh/GX-Storage/GX-Storage@main/undertale/game.unx.part7'
     ];
 
-    const localFiles = ['runner.wasm', 'runner.data', 'runner.js', 'index.js']; // will load from same folder as HTML
+    const localFiles = ['runner.wasm', 'runner.data', 'runner.js', 'index.js']; 
     const statusEl = document.getElementById('status');
     const msgEl = document.getElementById('messages');
     const log = (t)=>{ msgEl.textContent += t + "\n"; msgEl.scrollTop = msgEl.scrollHeight; };
     const setStatus = s => { if(statusEl) statusEl.textContent = s; };
 
     async function fetchArrayBufferSafe(path) {
+      setStatus('Loading ' + path.split('/').pop());
+      log('Fetching ' + path.split('/').pop());
       try {
         const res = await fetch(path);
-        if (!res.ok) throw new Error(path + ' → HTTP ' + res.status);
+        if (!res.ok) throw new Error(res.status);
         return await res.arrayBuffer();
       } catch (e) {
         throw new Error('Failed to fetch ' + path + ': ' + e.message);
@@ -52,32 +66,21 @@
     }
 
     async function combineParts() {
-      setStatus('fetching parts');
-      log('Fetching parts (in order)...');
       const buffers = [];
       let total = 0;
       for (const p of parts) {
-        try {
-          const buf = await fetchArrayBufferSafe(p);
-          buffers.push(buf);
-          total += buf.byteLength;
-          log('  - fetched ' + p.split('/').pop() + ' (' + Math.round(buf.byteLength/1024) + ' KB)');
-        } catch (e) {
-          log('  - WARN: ' + e.message);
-        }
+        const buf = await fetchArrayBufferSafe(p);
+        buffers.push(buf);
+        total += buf.byteLength;
       }
-      if (buffers.length === 0) throw new Error('No part files were fetched.');
-      setStatus('combining parts');
       const combined = new Uint8Array(total);
       let offset = 0;
       for (const b of buffers) { combined.set(new Uint8Array(b), offset); offset += b.byteLength; }
-      log('Combined size: ' + Math.round(combined.byteLength/1024) + ' KB');
       return combined.buffer;
     }
 
     async function injectLocalScripts() {
-      setStatus('loading scripts');
-      log('Injecting local runner.js and index.js...');
+      setStatus('Loading runner scripts...');
       for (const f of ['runner.js','index.js']) {
         const s = document.createElement('script');
         s.src = f;
@@ -90,14 +93,11 @@
 
     async function start() {
       try {
-        setStatus('starting');
-        log('Checking local files...');
         for (const f of localFiles) {
           const ok = await fetch(f, {method:'HEAD'}).then(r=>r.ok).catch(()=>false);
           if (!ok) log('  - NOTE: ' + f + ' not found locally.');
         }
         const combinedBuf = await combineParts();
-        // Provide the combined game.unx via a blob to override fetch
         const gameBlob = new Blob([combinedBuf]);
         const gameUrl = URL.createObjectURL(gameBlob);
         const originalFetch = window.fetch;
@@ -109,19 +109,16 @@
           return originalFetch.call(this, input, options);
         };
         await injectLocalScripts();
-        setStatus('done - game should boot');
-        log('Game starting...');
+        setStatus('Game starting...');
+        log('All parts loaded. Game booting...');
       } catch (err) {
         setStatus('error');
         log('ERROR: ' + err.message);
       }
     }
 
-    document.getElementById('startBtn').addEventListener('click', async () => {
-      document.getElementById('startBtn').disabled = true;
-      setStatus('preparing');
-      await start();
-    });
+    // Start automatically
+    window.addEventListener('load', start);
   })();
   </script>
 </body>

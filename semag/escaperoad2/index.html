@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Road 2</title>
+</head>
+<body>
+  <div id="content"></div>
+
+  <script>
+    const url = "https://raw.githubusercontent.com/GX-Storage/Escape-Road-2/refs/heads/main/Escape%20Road%202.html";
+
+    fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.text();
+      })
+      .then(html => {
+        document.getElementById("content").innerHTML = html;
+
+        // Execute any scripts within the loaded HTML
+        const scripts = document.getElementById("content").querySelectorAll("script");
+        scripts.forEach(oldScript => {
+          const newScript = document.createElement("script");
+          if (oldScript.src) {
+            newScript.src = oldScript.src;
+          } else {
+            newScript.textContent = oldScript.textContent;
+          }
+          document.body.appendChild(newScript);
+        });
+      })
+      .catch(error => {
+        document.body.innerHTML = `<p style="color:red;">Failed to load remote content: ${error}</p>`;
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

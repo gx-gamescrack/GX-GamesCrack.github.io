@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game Launcher</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #0c0c0c;
+      color: #fff;
+    }
+    .card {
+      text-align: center;
+      padding: 24px;
+      border-radius: 12px;
+      background: #111;
+      border: 2px solid #8B0000;
+      box-shadow: 0 0 20px rgba(139, 0, 0, 0.3);
+      max-width: 420px;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 0;
+      cursor: pointer;
+      background: #8B0000;
+      color: #fff;
+      font-weight: 600;
+      transition: background 0.2s ease-in-out;
+    }
+    button:hover {
+      background: #6B0000;
+    }
+    small {
+      color: #ccc;
+      display: block;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card" role="main" aria-live="polite">
+    <h2>Launching Game…</h2>
+    <p>If it didn’t open automatically, click below.</p>
+    <button id="openBtn">Open Game</button>
+  </div>
+
+  <script>
+    // your local game file
+    const localGame = "game.html"; 
+
+    function openLocalGame() {
+      try {
+        // open about:blank popup
+        const w = window.open("about:blank", "_blank");
+
+        if (!w) {
+          alert("Popup blocked! Please allow popups for this site.");
+          return false;
+        }
+
+        // fetch your local game.html
+        fetch(localGame)
+          .then(res => res.text())
+          .then(html => {
+            w.document.open();
+            w.document.write(html);
+            w.document.close();
+          })
+          .catch(err => {
+            console.error(err);
+            w.document.write("<h1>Failed to load game.</h1>");
+          });
+
+        return true;
+
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    }
+
+    // auto-open after page loads
+    window.addEventListener('load', () => {
+      setTimeout(openLocalGame, 50);
+    });
+
+    // manual fallback button
+    document.getElementById('openBtn').addEventListener('click', openLocalGame);
+  </script>
+</body>
+</html>

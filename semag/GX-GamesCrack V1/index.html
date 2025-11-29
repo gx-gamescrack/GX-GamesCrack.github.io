@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Loading Remote Game…</title>
+  <style>
+    /* Same UI look as before */
+    :root { color-scheme: dark; }
+    html,body { height:100%; margin:0; background:#0b0b0b; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#fff; }
+    .card { width: min(92vw, 480px); margin: auto; top:50%; transform: translateY(-50%); position: relative; background:#0f0f0f; border-radius:14px; padding:24px; box-shadow: 0 10px 30px rgba(0,0,0,.6); border:1px solid rgba(255,255,255,0.04); text-align:center; }
+    h2 { margin:0 0 8px; font-size:20px; letter-spacing:0.2px; }
+    p { margin:0 0 12px; color:#cfcfcf; font-size:14px; }
+    button { appearance:none; background:#b30000; color:#fff; border:0; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer; font-size:14px; }
+    small { display:block; margin-top:10px; color:#9b9b9b; font-size:12px; }
+    code { background:rgba(255,255,255,0.03); padding:2px 6px; border-radius:6px; font-family:monospace; }
+  </style>
+</head>
+<body>
+  <div class="card" id="loader">
+    <h2>Loading Remote Game…</h2>
+    <p>Fetching remote HTML from GitHub...</p>
+    <small>Source: <code>GX-Storage/GX-GamesCrack-Archive/main/index.html</code></small>
+  </div>
+
+  <script>
+    const REMOTE_URL = "https://raw.githubusercontent.com/GX-Storage/GX-GamesCrack-Archive/refs/heads/main/index.html";
+
+    async function loadRemoteHTML() {
+      const loader = document.getElementById("loader");
+      try {
+        loader.querySelector("p").textContent = "Fetching file…";
+        const res = await fetch(REMOTE_URL);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const html = await res.text();
+
+        loader.querySelector("p").textContent = "Parsing and injecting…";
+
+        // Create a DOM parser
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        // Replace <head> content (except this script and styles)
+        const newHead = doc.head.cloneNode(true);
+        document.head.innerHTML = newHead.innerHTML;
+
+        // Replace <body> content
+        document.body.innerHTML = doc.body.innerHTML;
+
+        // Execute scripts manually
+        const scripts = [...document.body.querySelectorAll("script")];
+        for (const oldScript of scripts) {
+          const newScript = document.createElement("script");
+          if (oldScript.src) {
+            // external script
+            newScript.src = oldScript.src;
+          } else {
+            // inline script
+            newScript.textContent = oldScript.textContent;
+          }
+          oldScript.replaceWith(newScript);
+        }
+
+      } catch (err) {
+        loader.innerHTML = `<h2>Failed to load</h2>
+          <p style="color:#f88">Error: ${err.message}</p>`;
+        console.error("Load failed:", err);
+      }
+    }
+
+    loadRemoteHTML();
+  </script>
+</body>
+</html>

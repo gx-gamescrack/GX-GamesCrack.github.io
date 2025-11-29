@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html class="sl-theme-dark" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GX-GamesCrack V2</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .top-text {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .video-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px; /* good for iPhone aspect ratio */
+        }
+
+        video {
+            width: 100%;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #8B0000;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            opacity: 0.85;
+            box-shadow: 0 0 10px #000;
+            transition: 0.2s;
+        }
+
+        .fullscreen-btn:hover {
+            opacity: 1;
+            box-shadow: 0 0 14px #8B0000;
+        }
+
+        header, footer {
+            padding: 15px;
+            text-align: center;
+        }
+
+        header a, footer a {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <a href="/index.html">Home</a>
+    <a href="/bookmarklets.html">Bookmarklets</a>
+    <a href="/projects.html">Games</a>
+    <a href="/apps.html">Apps</a>
+    <a href="/settings.html">Settings</a>
+    <a id="blank" href="#">Open Blank</a>
+</header>
+
+<main>
+    <div class="top-text">
+        <h2>How To Clone This Site On Mobile.</h2>
+        <p>No PC Required!</p>
+    </div>
+
+    <div class="video-wrapper">
+        <div class="video-container">
+            <video id="tutorialVideo" controls playsinline>
+                <source src="vids/how-to.mp4" type="video/mp4">
+                Your browser does not support HTML5 video.
+            </video>
+
+            <button id="fullBtn" class="fullscreen-btn">⛶ Fullscreen</button>
+        </div>
+    </div>
+    <p>Use Sound.</p>
+</main>
+
+<footer>
+    <a href="https://github.com/gx-gamescrack/gx-gamescrack.github.io">Source</a>
+    <a href="https://discord.gg/QyvUQCNw2Y">Discord</a>
+    <a href="/How-to.html">Make A Link</a>
+    <a href="/suggest.html">Suggestions & Bugs</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/about.html">About</a>
+</footer>
+
+<script>
+    const vid = document.getElementById("tutorialVideo");
+    const btn = document.getElementById("fullBtn");
+
+    btn.addEventListener("click", () => {
+        if (vid.requestFullscreen) vid.requestFullscreen();
+        else if (vid.webkitRequestFullscreen) vid.webkitRequestFullscreen();
+        else if (vid.msRequestFullscreen) vid.msRequestFullscreen();
+
+        // fallback for iPhone Safari
+        if (!document.fullscreenElement && vid.webkitEnterFullScreen) {
+            try { vid.webkitEnterFullScreen(); } catch (e) {}
+        }
+    });
+</script>
+
+</body>
+</html>

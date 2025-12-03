@@ -213,7 +213,7 @@ body[theme=light] { --inputbg: #0c0c0c; --inputborder: #c76408; --uibg: #c76408;
 body[theme=dark] { --inputbg: #333333; --inputborder: #444444; --uibg: #242424; --textcolor: #fff; --bg: #0c0c0c; }
 body[theme=egamepass] { --inputbg: #4f6ed1; --inputborder: #5586e0; --uibg: #185494; --textcolor: #a7d3ff; --bg: #16416f; }
 body[theme=cools1te] { --inputbg: #a134dc; --inputborder: #b153e3; --uibg: #ab28cf; --textcolor: #d3a4fa; --bg: #8e14af; }
-body[theme=dogcat] { --inputbg: #3C4043; --inputborder: #fff; --uibg: ##3C4043; --textcolor: #fff; --bg: url("/img/backgrounds/classic.gif"); }
+body[theme=classic] { --inputbg: #3C4043; --inputborder: #fff; --uibg: ##3C4043; --textcolor: #fff; --bg: url("/img/backgrounds/classic.gif"); }
 
 /* Latte/Frappe/Macchiato/Mocha */
 body[theme=latte], body[theme=lattefalse] { --inputbg: #9ca0b0; --inputborder: #8c8fa1; --uibg: #ccd0da; --textcolor: #4c4f69; --bg: #eff1f5; --shadow: 0px 0px 4px #ccd0da; }
@@ -227,6 +227,7 @@ body[theme=mountains], body[theme=mountainsfalse] { --inputbg:#d37f7f; --inputbo
 body[theme=vaporwave], body[theme=vaporwavefalse] { --inputbg:#4b2d64; --inputborder:#74568d; --uibg:#51166d; --textcolor:#fff; --bg:url("/img/backgrounds/vaporwave_theme.jpg"), #61437a; --shadow:0px 0px 4px #000000; }
 body[theme=seraph], body[theme=seraphfalse] { --inputbg:#000; --inputborder:#fff; --uibg:#000; --textcolor:#fff; --bg:url("/img/backgrounds/seraph_theme.png"), #1c1a1e; --shadow:0px 0px 4px #fff; }
 body[theme=nighttime], body[theme=nighttimefalse] { --inputbg:#29374d; --inputborder:#fff; --uibg:#29374d; --textcolor:#fff; --bg:url("/img/backgrounds/nighttime_theme.png"), #28272a; --shadow:0px 0px 4px #fff; }
+
 
 
 

@@ -9,13 +9,13 @@
     /* Reset */
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Lato',sans-serif; }
     :root{
-        --inputbg: #6B0000;
+        --inputbg: #0c0c0c;
         --inputborder: #8B0000;
         --uibg: #8B0000;
         --textcolor: #ffffff;
         --bg: #2c2c2c;
         --shadow: 0px 0px 4px #8B0000;
-        --header-height: 100px; /* default header height used for spacing */
+        --header-height: 80px; /* default header height used for spacing */
     }
 
     ::selection { background-color: var(--uibg); color: var(--textcolor); }
@@ -66,7 +66,24 @@
     .proxy-select{ padding:14px 16px; background-color:var(--inputbg); border:2px solid var(--inputborder); border-radius:10px; color:var(--textcolor); font-size:14px; cursor:pointer; text-align:center; }
 
     /* ---------- CONTENT ---------- */
-    .content { flex:1; margin: calc(var(--header-height,100px)) 20px 20px 20px; border-radius:20px; overflow:hidden; display:flex; flex-direction:column; background: #2c2c2c; box-shadow: 0px 0px 5px 5px var(--uibg); border:2px solid var(--inputborder); transition: margin .35s ease, border-radius .35s ease; min-height: 200px; position:relative; z-index: 1; }
+    .content {
+    flex:1;
+    margin: calc(var(--header-height,100px)) 20px 20px 20px;
+    border-radius:20px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    background: #2c2c2c;
+    border:8px solid var(--inputborder);
+    border-left: none;
+    border-right: none;
+    transition: margin .35s ease, border-radius .35s ease;
+    min-height: 200px;
+    position:relative;
+    z-index: 1;
+}
+
+
 
     .content.fullscreen { margin:0 !important; border-radius:0 !important; }
 
@@ -136,7 +153,8 @@
             <li>Any Links Ending With</li>
             <li>github.io</li>
             <li>vercel.app</li>
-            <li>And Most Smaller Websites, Selenite, FritzVG, Ect.</li> 
+            <li>And Most Smaller Websites, Selenite, FritzVG, Ect.</li>
+            <li>Will Load!</li>
             <li>Big Sites, Tiktok, Spotify, Reddit, Ect Will Saddly Not Load:(</li>
             
         </ul>

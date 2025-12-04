@@ -15,7 +15,7 @@
         --textcolor: #ffffff;
         --bg: #2c2c2c;
         --shadow: 0px 0px 4px #8B0000;
-        --header-height: 80px; /* default header height used for spacing */
+        --header-height: 80px;
     }
 
     ::selection { background-color: var(--uibg); color: var(--textcolor); }
@@ -26,7 +26,7 @@
         display:flex;
         flex-direction:column;
         min-height:100vh;
-        overflow:hidden; /* prevent page scrolling so iframe fits nicely */
+        overflow:hidden;
     }
 
     /* ---------- HEADER ---------- */
@@ -67,23 +67,21 @@
 
     /* ---------- CONTENT ---------- */
     .content {
-    flex:1;
-    margin: calc(var(--header-height,100px)) 20px 20px 20px;
-    border-radius:20px;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    background: #2c2c2c;
-    border:8px solid var(--inputborder);
-    border-left: none;
-    border-right: none;
-    transition: margin .35s ease, border-radius .35s ease;
-    min-height: 200px;
-    position:relative;
-    z-index: 1;
-}
-
-
+        flex:1;
+        margin: calc(var(--header-height,100px)) 20px 20px 20px;
+        border-radius:20px;
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        background: #2c2c2c;
+        border:8px solid var(--inputborder);
+        border-left: none;
+        border-right: none;
+        transition: margin .35s ease, border-radius .35s ease;
+        min-height: 200px;
+        position:relative;
+        z-index: 1;
+    }
 
     .content.fullscreen { margin:0 !important; border-radius:0 !important; }
 
@@ -112,18 +110,56 @@
     .hidden-ui { opacity:0; transform:translateY(-25px); pointer-events:none; transition:opacity .35s, transform .35s; }
     .hidden-status { opacity:0; transform:translateY(25px); pointer-events:none; transition:opacity .35s, transform .35s; }
 
+    /* Bookmarks bubbles */
+    .bookmark-bubbles{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        gap:20px;
+        flex-wrap:wrap;
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%, -50%);
+        z-index:5;
+    }
+
+    .bubble{
+        width:100px;
+        height:100px;
+        border-radius:50%;
+        background:var(--uibg);
+        border:3px solid var(--inputborder);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        color:var(--textcolor);
+        font-weight:700;
+        cursor:pointer;
+        text-align:center;
+        text-shadow:var(--shadow);
+        transition: transform 0.25s, filter 0.25s;
+    }
+
+    .bubble:hover{
+        transform: scale(1.2);
+        filter:brightness(1.1);
+    }
+
     /* responsive tweaks */
     @media only screen and (max-width: 900px){
         :root{ --header-height: 160px; }
         .container{ padding:0 10px; }
         input#urlInput{ padding:12px 44px 12px 12px; font-size:14px; }
         .proxy-select, button#goBtn{ padding:12px 14px; font-size:14px; }
+        .bubble{ width:80px; height:80px; font-size:12px; }
     }
     @media only screen and (max-width: 480px){
         :root{ --header-height: 180px; }
         .branding{ font-size:20px; }
         .info{ padding:16px; margin:12px; }
         .content{ margin: calc(var(--header-height,180px)) 10px 70px 10px; }
+        .bubble{ width:70px; height:70px; font-size:11px; }
     }
 </style>
 </head>
@@ -157,8 +193,14 @@
             <li>Will Load!</li>
             <li>Some Links Will Load But Breaks When You Click Anything, So Get The Full Url. Exsamples, reddit.com/r/eaglercraft,  github.com/search?q=eaglercraft&type=repositories</li>
             <li>Big Sites, Tiktok, Spotify, Etc Will Saddly Not Load:(</li>
-            
         </ul>
+    </div>
+
+    <!-- Bookmark bubbles -->
+    <div class="bookmark-bubbles" id="bookmarkBubbles">
+        <div class="bubble" data-url="https://selenite.cc">Selenite</div>
+        <div class="bubble" data-url="https://fritzfromtechsupport.com/fritzvg-main/">FritzVG</div>
+        <div class="bubble" data-url="https://www.gameflare.com/embed/doom-3-demo/">Doom 3</div>
     </div>
 
     <div class="loading" id="loading">
@@ -193,6 +235,7 @@ const statusIndicator = document.getElementById('statusIndicator');
 const headerEl = document.getElementById('headerEl');
 const statusBar = document.getElementById('statusBar');
 const contentBox = document.getElementById('contentBox');
+const bookmarkBubbles = document.getElementById('bookmarkBubbles');
 
 // clear button
 urlInput.addEventListener('input', () => {
@@ -241,6 +284,7 @@ function loadSite(){
     try { new URL(url); } catch(e) { return showError('Invalid URL format'); }
 
     info.style.display = 'none';
+    bookmarkBubbles.style.display = 'none';
     error.style.display = 'none';
     loading.style.display = 'block';
     frame.style.display = 'none';
@@ -273,7 +317,7 @@ function loadSite(){
 goBtn.addEventListener('click', loadSite);
 urlInput.addEventListener('keypress', e => { if(e.key === 'Enter') loadSite(); });
 
-// Show header when hovering top or over header, hide after leaving
+// Hover to show header/status
 let hoverTimeout;
 document.addEventListener('mousemove', e => {
     if(contentBox.classList.contains('fullscreen')) {
@@ -287,11 +331,20 @@ document.addEventListener('mousemove', e => {
             hoverTimeout = setTimeout(() => {
                 headerEl.classList.add('hidden-ui');
                 statusBar.classList.add('hidden-status');
-            }, 500); // delay so it doesn't flicker
+            }, 500);
         }
     }
 });
 
+// Bookmark bubbles click
+document.querySelectorAll('.bubble').forEach(bubble => {
+    bubble.addEventListener('click', () => {
+        const bookmarkUrl = bubble.dataset.url;
+        urlInput.value = bookmarkUrl;
+        proxySelect.value = 'corsproxy'; // Force xXJ0NXxProxy
+        loadSite();
+    });
+});
 </script>
 </body>
 </html>

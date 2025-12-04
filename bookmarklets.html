@@ -120,13 +120,25 @@
 		<footer>
 			<a href="https://github.com/gx-gamescrack/GX-GamesCrack.github.io">Source</a>
 			<a href="https://discord.gg/QyvUQCNw2Y">Discord</a>
-			<a href="/How-to.html">Make A Link</a>
+			<a href="#" onclick="
+  fetch('proxy/jcp.html')
+    .then(response => response.text())
+    .then(html => {
+      const newTab = window.open('about:blank', '_blank');
+      newTab.document.open();
+      newTab.document.write(html);
+      newTab.document.close();
+    })
+    .catch(err => alert('Failed to load proxy/jcp.html: ' + err));
+  return false;
+">Proxy</a>
 			<a href="/suggest.html">Suggestions & Bugs</a>
 			<a href="/contact.html">Contact</a>
 			<a href="/about.html">About</a>
 		</footer>
 	</body>
 </html>
+
 
 
 

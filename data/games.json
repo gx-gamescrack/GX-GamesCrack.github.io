@@ -955,6 +955,11 @@
     "image": "game.png"
   },
   {
+    "name": "Swords And Souls",
+    "directory": "swords&souls",
+    "image": "game.png"
+  },
+  {
     "name": "Table Tennis",
     "directory": "tabletennis",
     "image": "game.png"
@@ -1120,6 +1125,7 @@
     "image": "game.png"
   }
 ]
+
 
 
 

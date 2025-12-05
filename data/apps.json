@@ -56,11 +56,6 @@
 		"image": "cover.svg"
 	},
 	{
-		"name": "Turbowarp",
-		"directory": "turbowarp",
-		"image": "cover.svg"
-	},
-	{
 		"name": "Calculator",
 		"image": "cover.svg",
 		"directory": "calc"
@@ -72,3 +67,4 @@
 	}
 
 ]
+

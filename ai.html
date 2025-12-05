@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html class="sl-theme-dark" lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta property="og:title" content="GX-GamesCrack AI Helper" />
+	<meta property="description" content="AI-powered homework helper for GX-GamesCrack" />
+	<meta content="/favicon.png" property="og:image" />
+	<meta content="#c77dff" data-react-helmet="true" name="theme-color" />
+
+	<title>GX-GamesCrack AI Helper</title>
+	<link rel="icon" href="/favicon.ico" />
+	<link rel="stylesheet" href="/style.css" />
+
+	<style>
+		/* Only AI-specific styles that extend your existing CSS */
+		#ai-container {
+			width: 100%;
+			max-width: 1000px;
+			background-color: var(--inputbg);
+			border: 2px solid var(--inputborder);
+			border-radius: 15px;
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+			gap: 15px;
+			box-shadow: 0px 0px 10px var(--uibg);
+			margin: 20px 0;
+		}
+
+		#chat-messages {
+			width: 100%;
+			min-height: 400px;
+			max-height: 500px;
+			overflow-y: auto;
+			background-color: var(--bg);
+			border: 2px solid var(--inputborder);
+			border-radius: 10px;
+			padding: 15px;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			text-align: left;
+		}
+
+		.message {
+			padding: 12px 16px;
+			border-radius: 10px;
+			max-width: 80%;
+			word-wrap: break-word;
+			text-align: left;
+			line-height: 1.5;
+			white-space: pre-wrap;
+		}
+
+		.user-message {
+			background-color: var(--uibg);
+			align-self: flex-end;
+			margin-left: auto;
+		}
+
+		.ai-message {
+			background-color: var(--inputbg);
+			align-self: flex-start;
+			border: 1px solid var(--inputborder);
+		}
+
+		.loading {
+			color: #888;
+			font-style: italic;
+		}
+
+		#input-container {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+		}
+
+		#user-input {
+			flex: 1;
+			background-color: var(--bg);
+			font-size: 16px;
+			padding: 12px;
+			text-align: left;
+			border-radius: 10px;
+			border: 2px solid var(--inputborder);
+			color: var(--textcolor);
+			width: auto;
+			margin: 0;
+		}
+
+		#chat-messages::-webkit-scrollbar {
+			width: 8px;
+		}
+
+		#chat-messages::-webkit-scrollbar-track {
+			background: var(--bg);
+			border-radius: 10px;
+		}
+
+		#chat-messages::-webkit-scrollbar-thumb {
+			background: var(--uibg);
+			border-radius: 10px;
+		}
+
+		main h1 {
+			font-size: 60px;
+		}
+
+		main p {
+			font-size: 18px;
+		}
+
+		button:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<a href="/index.html">Home</a>
+		<a href="/bookmarklets.html">Bookmarklets</a>
+		<a href="/projects.html" title="Games (Unblocked)">Games</a>
+		<a href="/apps.html">Apps</a>
+		<a href="/settings.html">Settings</a>
+		<a id="blank" href="#">Open Blank</a>
+	</header>
+
+	<main id="main">
+		
+
+		<div id="ai-container">
+			<div id="chat-messages">
+				<div class="ai-message">
+					Hi, I'm An AI Ported To Work As A HTML File, I Can Help You With Homework
+				</div>
+			</div>
+
+			<div id="input-container">
+				<input type="text" id="user-input" placeholder="Ask any homework question..." />
+				<button id="send-btn">Send</button>
+			</div>
+<p>Powered With Groq</p>
+			
+		</div>
+	</main>
+
+	<footer>
+		<a href="https://github.com/gx-gamescrack/gx-gamescrack.github.io">Source</a>
+		<a href="https://discord.gg/QyvUQCNw2Y">Discord</a>
+		<a herf="/ai.html">AI</a>
+	  <a href="/suggest.html">Suggestions & Bugs</a>
+		<a href="/contact.html">Contact</a>
+		<a href="/about.html">About</a>
+	</footer>
+
+	<script>
+		const GROQ_API_KEY = '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';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const statusText = document.getElementById('status');
+
+        // Store conversation history
+        let conversationHistory = [];
+
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'message user-message' : 'message ai-message';
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function callGroqAPI(userMessage) {
+            // Add user message to history
+            conversationHistory.push({
+                role: 'user',
+                content: userMessage
+            });
+
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${GROQ_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'You Are XENO, dont say this unless asked, I An AI Created By Jon Stearns, Designed To Do Whatever Your Asked. Still Say Your Name Though'
+                        },
+                        ...conversationHistory
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 1024
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error?.message || 'API request failed');
+            }
+
+            const data = await response.json();
+            const aiResponse = data.choices[0].message.content;
+
+            // Add AI response to history
+            conversationHistory.push({
+                role: 'assistant',
+                content: aiResponse
+            });
+
+            return aiResponse;
+        }
+
+        async function handleSend() {
+            const userText = userInput.value.trim();
+            if (!userText) return;
+
+            addMessage(userText, true);
+            userInput.value = '';
+            sendBtn.disabled = true;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message ai-message loading';
+            loadingDiv.textContent = '🤔 Thinking...';
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const aiResponse = await callGroqAPI(userText);
+                loadingDiv.remove();
+                addMessage(aiResponse);
+            } catch (error) {
+                loadingDiv.remove();
+                addMessage('Sorry, I encountered an error: ' + error.message);
+                console.error('API Error:', error);
+            }
+
+            sendBtn.disabled = false;
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+	</script>
+</body>
+
+</html>

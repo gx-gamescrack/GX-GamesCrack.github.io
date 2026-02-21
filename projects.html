@@ -1,113 +1,777 @@
 <!DOCTYPE html>
 <html class="sl-theme-dark" lang="en">
-	<head>
-		<!-- initialize theme vars
-    https://coolors.co/10002b-240046-3c096c-5a189a-7b2cbf-9d4edd-c77dff-e0aaff -->
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+	
+	<script src="/js/all.min.js"></script>
+	<script src="/js/games.js"></script>
+	<script src="/js/search.js"></script>
+	<script src="/js/main.js"></script>
+	<script src="/js/widget.js"></script>
+	<script src="/js/themes.js"></script>
+	<script src="/js/cookie.js"></script>
+	
+	<link rel="stylesheet" href="/style.css" />
+	
+	<title>GX-GamesCrack V2</title>
+	<meta http-equiv="Content-Security-Policy" content="frame-ancestors 'self' blob:;">
+	<link rel="icon" href="/favicon.ico" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	
+	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3415518411898563" crossorigin="anonymous"></script>
+	
+	<style>
+		/* Game Modal Styles */
+		.game-modal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			background: rgba(0, 0, 0, 0.95);
+			justify-content: center;
+			align-items: center;
+			z-index: 999999;
+			overflow: auto;
+		}
 
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-		<script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-		<!-- initialize my stuff -->
-		<script src="/js/all.min.js"></script>
-		<script src="/js/games.js"></script>
-		<script src="/js/search.js"></script>
-		<script src="/js/main.js"></script>
-		<script src="/js/widget.js"></script>
-		<script src="/js/themes.js"></script>
-		<script src="/js/cookie.js"></script>
+		/* Fullscreen CSS */
+		.game-modal.fullscreen {
+			background: #000;
+		}
 
+		.game-modal.fullscreen .game-modal-content {
+			max-width: 100vw;
+			width: 100vw;
+			height: 100vh;
+			border-radius: 0;
+			padding: 0;
+			border: none;
+		}
+
+		.game-modal.fullscreen .game-modal-frame {
+			width: 100%;
+			height: 100vh;
+			border: none;
+			border-radius: 0;
+			margin: 0;
+		}
+
+		.game-modal.fullscreen .game-modal-title,
+		.game-modal.fullscreen .game-modal-controls,
+		.game-modal.fullscreen .game-modal-close {
+			display: none;
+		}
+
+		.game-modal-content {
+			background: var(--bg);
+			max-width: 90vw;
+			width: 900px;
+			border-radius: 20px;
+			padding: 1.5rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			position: relative;
+			box-shadow: 0 0 25px var(--uibg);
+			text-align: center;
+			border: 2px solid var(--inputborder);
+		}
+
+		.game-modal-title {
+			margin: 0 0 1rem;
+			color: var(--textcolor);
+			font-size: 2rem;
+			text-shadow: var(--shadow);
+		}
+
+		.game-modal-frame {
+			width: 100%;
+			height: 60vh;
+			border: 3px solid var(--uibg);
+			border-radius: 10px;
+			margin-bottom: 1rem;
+			background: var(--bg);
+		}
+
+		.game-modal-controls {
+			display: flex;
+			gap: 1rem;
+			flex-wrap: wrap;
+			justify-content: center;
+			margin-bottom: 0.5rem;
+		}
+
+		.game-modal-controls button {
+			background: var(--uibg);
+			border: 2px solid var(--inputborder);
+			border-radius: 10px;
+			color: var(--textcolor);
+			padding: 0.8rem 1.2rem;
+			font-weight: bold;
+			cursor: pointer;
+			transition: all 0.3s;
+			box-shadow: var(--shadow);
+		}
+
+		.game-modal-controls button:hover {
+			transform: scale(1.05);
+			filter: brightness(85%);
+		}
+
+		.game-modal-close {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background: var(--uibg);
+			border: 2px solid var(--inputborder);
+			border-radius: 50%;
+			color: var(--textcolor);
+			width: 40px;
+			height: 40px;
+			font-size: 1.5rem;
+			font-weight: bold;
+			line-height: 1;
+			cursor: pointer;
+			z-index: 1000;
+			transition: all 0.3s;
+			box-shadow: var(--shadow);
+		}
+
+		.game-modal-close:hover {
+			transform: scale(1.1);
+			filter: brightness(80%);
+		}
+
+		/* Draggable Exit Button */
+		.draggable-exit-btn {
+			position: fixed;
+			left: 12px;
+			bottom: 12px;
+			z-index: 1000001;
+			padding: 8px 14px;
+			font-size: 14px;
+			background: rgba(0,0,0,0.35);
+			color: white;
+			border: 1px solid rgba(255,255,255,0.25);
+			border-radius: 6px;
+			cursor: grab;
+			user-select: none;
+			opacity: 0.4;
+			transition: opacity 0.2s, background 0.2s;
+			display: none;
+		}
+
+		.draggable-exit-btn:hover {
+			opacity: 1;
+			background: rgba(0,0,0,0.65);
+		}
+
+		.draggable-exit-btn.dragging {
+			cursor: grabbing;
+		}
+
+		.game-modal.fullscreen ~ .draggable-exit-btn {
+			display: block;
+		}
+	</style>
+	
+	<script>
+		$.getJSON("data/changelog.json", (data) => {
+			const storedVersion = sessionStorage.getItem("selenite.version") || "";
+			if (storedVersion != data.version) {
+				toast({ title: "New Update!", message: data.desc, time: data.timestamp });
+				sessionStorage.setItem("selenite.version", data.version);
+			}
+		});
 		
-		<link rel="stylesheet" href="/style.css" />
+		function toast(message, type) {
+			const toast = document.getElementById("toast");
+			toast.innerHTML = `<div class=samerow><h1>${message.title} - ${timeAgo(new Date(message.time * 1000))}</h1></div><p>${message.message}</p>`;
+			toast.style.animation = "toastFade 6s";
+		}
+
+		function timeAgo(input) {
+			const date = input instanceof Date ? input : new Date(input);
+			const formatter = new Intl.RelativeTimeFormat("en");
+			const ranges = {
+				years: 3600 * 24 * 365,
+				months: 3600 * 24 * 30,
+				weeks: 3600 * 24 * 7,
+				days: 3600 * 24,
+				hours: 3600,
+				minutes: 60,
+				seconds: 1,
+			};
+			const secondsElapsed = (date.getTime() - Date.now()) / 1000;
+			for (let key in ranges) {
+				if (ranges[key] < Math.abs(secondsElapsed)) {
+					const delta = secondsElapsed / ranges[key];
+					return formatter.format(Math.round(delta), key);
+				}
+			}
+		}
+	</script>
+</head>
+<alerts>
+	<div id="toast"></div>
+</alerts>
+<body>
+	<header>
+		<a href="/index.html">Home</a>
+		<a href="/bookmarklets.html">Bookmarklets</a>
+		<a href="/projects.html">Games/Apps</a>
+		<a href="/settings.html">Settings</a>
+		<a id="blank" href="#">Open Blank</a>
+	</header>
+	<main>
+		<input class="hiddenUpload" type="file" accept=".save" hidden />
+		<input type="text" class="searchbar" id="gamesearch" placeholder="Type here to search.." />
+		<div class="samerow">
+			<sl-tooltip content="Remember to download your save, so you don't lose your progress." trigger="manual" class="manual-tooltip">
+				<button onclick="downloadMainSave()">Download Save</button>
+			</sl-tooltip>
+			<button id="upload" onclick="uploadMainSave()">Upload Save</button>
+		</div>
+		<div class="samerow">
+			<button id="random" onclick="selectRandomGame()">Play a random game!</button>
+			<button id="category" onclick="categoryChanger()">Game Categories</button>
+		</div>
+		<h2>Starred Games</h2>
+		<p id="pinnedmessage">Star some games for things to show up here!</p>
+		<div id="pinned"></div>
+		<h2>All Games</h2>
+		<div id="games">
+			<a href="/suggest.html">
+				<div class="suggest">
+					<img src="img/addlink.svg" alt="Add Game logo" style="filter: invert(1) !important" />
+					<h1>Suggest a game!</h1>
+				</div>
+			</a>
+			<button id="message" onclick='$.getJSON("/data/games.json", function (data) {loadGames(data)})'>Games not loading? Click here.</button>
+		</div>
+		<br />
 		
+		<!-- Apps Section -->
+		<div style="margin: 40px 0; border: none; height: 1px; background: #6B0000; box-shadow: 0 0 10px #6B0000;"></div>
+		<h2 style="margin-bottom: 20px;">Apps</h2>
+		<div id="apps">
+			<button id="appsmessage" onclick='loadAppsSection()'>Apps not loading? Click here.</button>
+		</div>
+		<br />
+	</main>
+	<footer>
+		<a href="https://github.com/gx-gamescrack/GX-GamesCrack.github.io">Source</a>
+		<a href="https://discord.gg/QyvUQCNw2Y">Discord</a>
+		<a href="https://forms.gle/oVF9eEWZNoFd8WvM9">Suggestions & Bugs</a>
+		<a href="/contact.html">Contact</a>
+		<a href="/about.html">About</a>
+	</footer>
 
-		<!-- seo + other things -->
-		<title>GX-GamesCrack V2</title>
-		<link rel="icon" href="/favicon.ico" />
+	<!-- Game Modal -->
+	<div class="game-modal" id="gameModal">
+		<div class="game-modal-content">
+			<button class="game-modal-close" id="closeModal">&times;</button>
+			<h2 class="game-modal-title" id="gameTitle"></h2>
+			<iframe class="game-modal-frame" id="gameFrame" src="" frameborder="0"></iframe>
+			<div class="game-modal-controls">
+				<button id="fullscreenBtn">Fullscreen</button>
+				<button id="aboutBlankBtn">Open in About:blank</button>
+				<button id="blobBtn">Open in Blob URL</button>
+			</div>
+		</div>
+	</div>
 
-		<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<!-- Draggable Exit Button -->
+	<div class="draggable-exit-btn" id="exitBtn">Exit</div>
+	
+<script>
+// Load apps into the apps section
+function loadAppsSection() {
+	$.getJSON("/data/apps.json", function (data) {
+		$("#apps #appsmessage").remove();
+		data.sort((a, b) => a.name.localeCompare(b.name));
+		
+		for (let i = 0; i < data.length; i++) {
+			let $element = $("<a>")
+				.attr({
+					class: "game app-item",
+					id: "app-" + data[i].directory,
+					href: "sppa/" + data[i].directory + "/index.html",
+				})
+				.append(
+					$("<img>").prop({
+						src: "sppa/" + data[i].directory + "/" + data[i].image,
+						alt: data[i].name + " logo",
+					})
+				)
+				.append($("<h1>").text(data[i].name));
 
-		<!-- toastify -->
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3415518411898563"
-		crossorigin="anonymous"></script>
-		<script></script>
-	</head>
-	<alerts>
-		<div id="toast"></div>
-		<script>
-			$.getJSON("data/changelog.json", (data) => {
-				if (localStorage.getItem("selenite.version") != data.version) {
-					toast({ title: "New Update!", message: data.desc, time: data.timestamp });
-					localStorage.setItem("selenite.version", data.version);
+			$("#apps").append($element);
+		}
+		
+		updateSearchPlaceholder();
+	});
+}
+
+// Update search placeholder with total count
+function updateSearchPlaceholder() {
+	setTimeout(function() {
+		const gamesCount = $("#games .game").not(".suggest").length;
+		const appsCount = $("#apps .app-item").length;
+		const total = gamesCount + appsCount;
+		$("#gamesearch").prop({
+			placeholder: "Click here to search through our " + total + " games & apps!"
+		});
+	}, 100);
+}
+
+// Auto-load apps when page loads
+$(document).ready(function() {
+	loadAppsSection();
+	
+	// Extend search functionality to include apps
+	$("#gamesearch").on("input", function() {
+		var txt = $(this).val();
+		
+		// Handle games
+		if (txt == "") {
+			$("#games .suggest").css("display", "inline-block");
+			$("#games .game").css("display", "inline-block");
+		} else {
+			$("#games .suggest").css("display", "none");
+			$("#games .game").each(function () {
+				if ($(this).text().toUpperCase().indexOf(txt.toUpperCase()) != -1 || 
+				    $(this).attr("id").toUpperCase().indexOf(txt.toUpperCase()) != -1) {
+					$(this).css("display", "inline-block");
+				} else {
+					$(this).css("display", "none");
 				}
 			});
-		</script>
-	</alerts>
-	<body>
-		<header>
-			<a href="/index.html">Home</a>
-			<a href="/bookmarklets.html">Bookmarklets</a>
-			<a href="/projects.html">Games</a>
-			<a href="/apps.html">Apps</a>
-			<a href="/settings.html">Settings</a>
-			<a id="blank" href="#">Open Blank</a>
+		}
+		
+		// Handle apps
+		$("#apps .app-item").each(function () {
+			if (txt == "" || 
+			    $(this).text().toUpperCase().indexOf(txt.toUpperCase()) != -1 || 
+			    $(this).attr("id").toUpperCase().indexOf(txt.toUpperCase()) != -1) {
+				$(this).css("display", "inline-block");
+			} else {
+				$(this).css("display", "none");
+			}
+		});
+	});
+});
 
-		</header>
-		<main>
-			<input class="hiddenUpload" type="file" accept=".save" hidden />
+// Game Modal Functionality
+(function () {
+	'use strict';
 
-			<input type="text" class="searchbar" id="gamesearch" placeholder="Type here to search.." />
-			<div class="samerow">
-				<sl-tooltip content="Remember to download your save, so you don't lose your progress." trigger="manual" class="manual-tooltip">
-					<button onclick="downloadMainSave()">Download Save</button>
-				</sl-tooltip>
-				<button id="upload" onclick="uploadMainSave()">Upload Save</button>
-			</div>
-			<div class="samerow">
-				<button id="random" onclick="selectRandomGame()">Play a random game!</button>
-				<button id="category" onclick="categoryChanger()">Game Categories</button>
-			</div>
+	const gameModal = document.getElementById('gameModal');
+	const gameFrame = document.getElementById('gameFrame');
+	const gameTitle = document.getElementById('gameTitle');
+	const closeModal = document.getElementById('closeModal');
+	const fullscreenBtn = document.getElementById('fullscreenBtn');
+	const aboutBlankBtn = document.getElementById('aboutBlankBtn');
+	const blobBtn = document.getElementById('blobBtn');
+	const exitBtn = document.getElementById('exitBtn');
+	
+	let currentGameUrl = '';
+	let currentGameTitle = '';
 
-			<h2>Starred Games</h2>
-			<p id="pinnedmessage">Star some games for things to show up here!</p>
-			<div id="pinned"></div>
+	// Close modal
+	function closeGameModal() {
+		gameModal.style.display = "none";
+		gameModal.classList.remove('fullscreen');
+		gameFrame.src = "about:blank";
+	}
 
-			<h2>All Games</h2>
-			<div id="games">
-				<a href="/suggest.html"
-					><div class="suggest">
-						<img src="img/addlink.svg" alt="Add Game logo" style="filter: invert(1) !important" />
-						<h1>Suggest a game!</h1>
-					</div></a>
+	closeModal.onclick = closeGameModal;
 
-				<button id="message" onclick='$.getJSON("/data/games.json", function (data) {loadGames(data)})'>Games not loading? Click here.</button>
-			</div>
-			<br />
-		</main>
+	// Click outside modal to close (only when not fullscreen)
+	gameModal.onclick = function(e) {
+		if (e.target === gameModal && !gameModal.classList.contains('fullscreen')) {
+			closeGameModal();
+		}
+	};
 
-		<footer>
-			<a href="https://github.com/gx-gamescrack/GX-GamesCrack.github.io">Source</a>
-			<a href="https://discord.gg/QyvUQCNw2Y">Discord</a>
-			<a href="/ai.html">Ai</a>
-			<a href="/suggest.html">Suggestions & Bugs</a>
-			<a href="/contact.html">Contact</a>
-			<a href="/about.html">About</a>
-		</footer>
-		<script>
-			document.addEventListener("DOMContentLoaded", function () {
-				const adContainers = document.querySelectorAll("[id=adcontainer]");
-				if (adContainers.length > 0) {
-					for (let i = 0; i < adContainers.length; i++) {
-						if (Math.random() < 0.5 && localStorage.getItem("selenite.adblock") != "true") {
-							adContainers[i].innerHTML = "";
-						}
+	// Open game in modal
+	function openGameModal(url, title) {
+		currentGameUrl = url;
+		currentGameTitle = title;
+		gameFrame.src = url;
+		gameTitle.textContent = title;
+		gameModal.style.display = "flex";
+		// Don't auto-fullscreen - show the popup menu first
+	}
+
+	// Fullscreen button - now uses CSS fullscreen with exit button
+	fullscreenBtn.onclick = function() {
+		gameModal.classList.add('fullscreen');
+	};
+
+	// About:blank
+	aboutBlankBtn.onclick = function() {
+		const newWindow = window.open("about:blank", "_blank");
+		if (newWindow) {
+			fetch(currentGameUrl)
+				.then(r => r.text())
+				.then(html => {
+					// Use correct base path for resolving relative assets
+					const normalized = new URL(currentGameUrl, location.href).href;
+					const baseDir = normalized.split('/').slice(0, -1).join('/') + '/';
+					const baseTag = `<base href="${baseDir}">`;
+					
+					// Inject base tag into head - try multiple patterns
+					if (html.match(/<head([^>]*)>/i)) {
+						html = html.replace(/<head([^>]*)>/i, `<head$1>${baseTag}`);
+					} else if (html.match(/<html([^>]*)>/i)) {
+						html = html.replace(/<html([^>]*)>/i, `<html$1><head>${baseTag}</head>`);
+					} else {
+						html = `<head>${baseTag}</head>` + html;
 					}
+					
+					newWindow.document.write(html);
+					newWindow.document.close();
+				})
+				.catch(err => {
+					console.error("Error:", err);
+					alert("Failed to open in about:blank");
+				});
+		} else {
+			alert("Popup blocked!");
+		}
+	};
+
+	// Blob URL
+blobBtn.onclick = function() {
+		const html = `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<style>
+					body, html {
+						margin: 0;
+						padding: 0;
+						width: 100%;
+						height: 100%;
+						overflow: hidden;
+					}
+					iframe {
+						width: 100%;
+						height: 100%;
+						border: none;
+					}
+				</style>
+			</head>
+			<body>
+				<iframe src="${currentGameUrl}"></iframe>
+			</body>
+			</html>
+		`;
+		const blob = new Blob([html], { type: "text/html" });
+		const blobUrl = URL.createObjectURL(blob);
+		window.open(blobUrl, "_blank");
+	};
+
+	// Draggable Exit Button Logic
+	let dragging = false;
+	let moved = false;
+	let startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+
+	exitBtn.addEventListener('mousedown', e => {
+		dragging = true;
+		moved = false;
+		startX = e.clientX;
+		startY = e.clientY;
+		const rect = exitBtn.getBoundingClientRect();
+		offsetX = e.clientX - rect.left;
+		offsetY = e.clientY - rect.top;
+		exitBtn.classList.add('dragging');
+		e.preventDefault();
+	});
+
+	document.addEventListener('mousemove', e => {
+		if (!dragging) return;
+		const dx = Math.abs(e.clientX - startX);
+		const dy = Math.abs(e.clientY - startY);
+		if (dx > 4 || dy > 4) moved = true;
+		exitBtn.style.left = (e.clientX - offsetX) + 'px';
+		exitBtn.style.top = (e.clientY - offsetY) + 'px';
+		exitBtn.style.bottom = 'auto';
+	});
+
+	document.addEventListener('mouseup', () => {
+		if (!dragging) return;
+		dragging = false;
+		exitBtn.classList.remove('dragging');
+	});
+
+	exitBtn.addEventListener('click', e => {
+		if (moved) {
+			e.preventDefault();
+			e.stopPropagation();
+			return;
+		}
+		// Exit fullscreen and go back to launch menu
+		gameModal.classList.remove('fullscreen');
+	});
+
+	// Backtick key (`) to close modal or exit fullscreen
+	document.addEventListener('keydown', e => {
+		if (e.key === '`' && gameModal.style.display === 'flex') {
+			if (gameModal.classList.contains('fullscreen')) {
+				// Exit fullscreen and go back to launch menu
+				gameModal.classList.remove('fullscreen');
+			} else {
+				// Close the modal completely
+				closeGameModal();
+			}
+		}
+	});
+
+	// Intercept clicks on game/app links
+	document.addEventListener('click', function (e) {
+		let target = e.target;
+		while (target && target.tagName !== 'A') {
+			target = target.parentElement;
+		}
+
+		if (target && target.tagName === 'A' && target.href) {
+			// Check if it's a game or app link
+			const isGame = target.classList.contains('game');
+			const isApp = target.classList.contains('app-item');
+			
+			// Skip external links
+			const isExternal = target.href.startsWith('http') && !target.href.includes(window.location.hostname);
+			
+			// Skip hash links and blank links
+			const isHashOrBlank = target.href.includes('#') || target.id === 'blank';
+			
+			// Skip suggest link
+			const isSuggest = target.querySelector('.suggest') !== null;
+			
+			if ((isGame || isApp) && !isExternal && !isHashOrBlank && !isSuggest) {
+				e.preventDefault();
+				e.stopPropagation();
+				
+				// Get game/app title
+				const titleElement = target.querySelector('h1');
+				const title = titleElement ? titleElement.textContent : 'Game';
+				
+				openGameModal(target.href, title);
+			}
+		}
+	}, true);
+
+})();
+
+// Original blob overlay for header/footer links
+(function () {
+	'use strict';
+
+	document.addEventListener('DOMContentLoaded', function () {
+		document.addEventListener('click', function (e) {
+			let target = e.target;
+			while (target && target.tagName !== 'A') {
+				target = target.parentElement;
+			}
+
+			if (target && target.tagName === 'A' && target.href) {
+				// Only handle header/footer links
+				const isHeaderFooterLink = target.closest('header') || target.closest('footer');
+				
+				// Skip external links (Discord, GitHub, Google Forms, etc.)
+				const isExternal = target.href.startsWith('http') && !target.href.includes(window.location.hostname);
+				
+				// Skip hash links and blank links
+				const isHashOrBlank = target.href.includes('#') || target.id === 'blank';
+				
+				if (isHeaderFooterLink && !isExternal && !isHashOrBlank) {
+					e.preventDefault();
+					e.stopPropagation();
+					openGameInBlob(target.href);
 				}
+			}
+		}, true);
+	});
+
+	async function openGameInBlob(gameUrl) {
+		let blobUrl, overlay, exitBtn;
+
+		const loadingDiv = document.createElement('div');
+		loadingDiv.textContent = 'Loading...';
+		loadingDiv.style.cssText = `
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 999998;
+			padding: 20px;
+			background: rgba(0,0,0,0.8);
+			color: white;
+			border-radius: 10px;
+			font-size: 18px;
+		`;
+		document.body.appendChild(loadingDiv);
+
+		try {
+			const response = await fetch(gameUrl);
+			let html = await response.text();
+
+			// Use correct base path for resolving relative assets
+			const normalized = new URL(gameUrl, location.href).href;
+			const baseDir = normalized.split('/').slice(0, -1).join('/') + '/';
+			const baseTag = `<base href="${baseDir}">`;
+
+			const injector = `
+<script>
+document.addEventListener('keydown', e => {
+	if (e.key === '\`') {
+		parent.postMessage({ type: 'CLOSE_BLOB_GAME' }, '*');
+	}
+});
+window.open = function(url) {
+	if (!url) return null;
+	location.href = url;
+	return null;
+};
+<\/script>
+			`;
+
+			html = html.replace(/<head([^>]*)>/i, `<head$1>${baseTag}${injector}`);
+
+			const blob = new Blob([html], { type: 'text/html' });
+			blobUrl = URL.createObjectURL(blob);
+			loadingDiv.remove();
+
+			overlay = document.createElement('div');
+			overlay.style.cssText = `
+				position: fixed;
+				inset: 0;
+				background: #000;
+				z-index: 999999;
+			`;
+
+			const iframe = document.createElement('iframe');
+			iframe.src = blobUrl;
+			iframe.style.cssText = `
+				width: 100%;
+				height: 100%;
+				border: none;
+			`;
+			iframe.tabIndex = -1;
+			setTimeout(() => {
+				iframe.focus();
+				iframe.contentWindow?.focus();
+			}, 50);
+
+			// Exit button (drag + click to close)
+			exitBtn = document.createElement('div');
+			exitBtn.textContent = 'Exit';
+			exitBtn.style.cssText = `
+				position: fixed;
+				left: 12px;
+				bottom: 12px;
+				z-index: 1000000;
+				padding: 8px 14px;
+				font-size: 14px;
+				background: rgba(0,0,0,0.35);
+				color: white;
+				border: 1px solid rgba(255,255,255,0.25);
+				border-radius: 6px;
+				cursor: grab;
+				user-select: none;
+				opacity: 0.4;
+				transition: opacity 0.2s, background 0.2s;
+			`;
+
+			exitBtn.onmouseenter = () => {
+				exitBtn.style.opacity = '1';
+				exitBtn.style.background = 'rgba(0,0,0,0.65)';
+			};
+			exitBtn.onmouseleave = () => {
+				exitBtn.style.opacity = '0.4';
+				exitBtn.style.background = 'rgba(0,0,0,0.35)';
+			};
+
+			let dragging = false;
+			let moved = false;
+			let startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+
+			exitBtn.addEventListener('mousedown', e => {
+				dragging = true;
+				moved = false;
+				startX = e.clientX;
+				startY = e.clientY;
+				const rect = exitBtn.getBoundingClientRect();
+				offsetX = e.clientX - rect.left;
+				offsetY = e.clientY - rect.top;
+				exitBtn.style.cursor = 'grabbing';
+				exitBtn.style.pointerEvents = 'auto';
+				e.preventDefault();
 			});
-		</script>
-	</body>
+
+			document.addEventListener('mousemove', e => {
+				if (!dragging) return;
+				const dx = Math.abs(e.clientX - startX);
+				const dy = Math.abs(e.clientY - startY);
+				if (dx > 4 || dy > 4) moved = true;
+				exitBtn.style.left = (e.clientX - offsetX) + 'px';
+				exitBtn.style.top = (e.clientY - offsetY) + 'px';
+				exitBtn.style.bottom = 'auto';
+			});
+
+			document.addEventListener('mouseup', () => {
+				if (!dragging) return;
+				dragging = false;
+				exitBtn.style.cursor = 'grab';
+				exitBtn.style.pointerEvents = 'auto';
+			});
+
+			exitBtn.addEventListener('click', e => {
+				if (moved) {
+					e.preventDefault();
+					e.stopPropagation();
+					return;
+				}
+				closeGame();
+			});
+
+			const closeGame = () => {
+				try { document.exitFullscreen?.(); document.pointerLockElement && document.exitPointerLock(); } catch {}
+				URL.revokeObjectURL(blobUrl);
+				overlay.remove();
+				exitBtn.remove();
+				window.removeEventListener('message', msgHandler);
+				document.removeEventListener('keydown', keyHandler);
+			};
+
+			const keyHandler = e => {
+				if (e.key === '`') closeGame();
+			};
+
+			const msgHandler = e => {
+				if (e.data && e.data.type === 'CLOSE_BLOB_GAME') closeGame();
+			};
+
+			document.addEventListener('keydown', keyHandler, true);
+			window.addEventListener('message', msgHandler);
+
+			overlay.appendChild(iframe);
+			document.body.appendChild(overlay);
+			document.body.appendChild(exitBtn);
+
+		} catch (error) {
+			console.error('Error loading page:', error);
+			alert('Failed to load page.');
+			loadingDiv.remove();
+		}
+	}
+})();
+</script>
+</body>
 </html>
-
-
-
-
-

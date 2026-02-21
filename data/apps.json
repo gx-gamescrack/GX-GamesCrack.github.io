@@ -9,7 +9,11 @@
 		"directory": "zip",
 		"image": "cover.png"
 	},
-
+	{
+		"name": "ExtPrint3r",
+		"directory": "test2",
+		"image": "game.png"
+	},
 	{
 		"name": "GBA Emulator", 
 		"directory": "gba",
@@ -56,10 +60,40 @@
 		"image": "cover.svg"
 	},
 	{
+		"name": "Turbowarp",
+		"directory": "turbowarp",
+		"image": "cover.svg"
+	},
+	{
 		"name": "Calculator",
 		"image": "cover.svg",
 		"directory": "calc"
 	},
+		{
+		"name": "Tiktok",
+		"image": "app.png",
+		"directory": "tiktok"
+	},
+			{
+		"name": "Spotify",
+		"image": "app.png",
+		"directory": "spotify"
+	},
+		{
+		"name": "GeForce Now",
+		"image": "app.png",
+		"directory": "gforce"
+	},
+	{
+		"name": "Proxy",
+		"image": "app.png",
+		"directory": "space"
+	},
+  {
+    "name": "webretro",
+    "image": "app.png",
+    "directory": "webretro"
+  },
 	{
 		"name": "GodoBlocks", 
 		"directory": "godo",
@@ -67,4 +101,3 @@
 	}
 
 ]
-

@@ -1,10 +1,17 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+/* ==========================================================================
+   GX-GAMESCRACK — visual system
+   Scene-report / terminal-readout identity. Variable names and every
+   id/class referenced by /js/*.js are unchanged — this file only redesigns
+   how things look, never what JS hooks into.
+   ========================================================================== */
+
+/* Fonts: JetBrains Mono for display/UI (terminal identity), Inter for body copy */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap');
 
 /* Keyframes */
 @keyframes loadInAnimation {
-    0% { opacity: 0; }
-    100% { opacity: 100; }
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes toastFade {
     0% { opacity: 0; }
@@ -12,61 +19,55 @@
     85% { opacity: 1; }
     100% { opacity: 0; }
 }
+@keyframes cursorBlink {
+    0%, 45% { opacity: 1; }
+    50%, 95% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes scanlineDrift {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 40px; }
+}
 
-/* Root defaults */
+/* Root defaults — same variable names as before, new values.
+   Themes (bottom of file) override these per-body[theme]. */
 :root {
-    --inputbg: #2c2c2c;
-    --inputborder: #444;
-    --uibg: #8B0000;
-    --textcolor: #ffffff;
-    --bg: #0c0c0c;
-    --shadow: 0px 0px 4px #8B0000;
+    --inputbg: #202126;
+    --inputborder: #ff3b4e;
+    --uibg: #17181c;
+    --textcolor: #f3efe7;
+    --bg: #08080a;
+    --shadow: 0px 0px 0px transparent;
     --margin: 4rem;
+
+    /* new, global (not overridden per-theme) */
+    --accent: #ff3b4e;
+    --accent2: #ffb020;
+    --text-dim: #8b8890;
+    --line: #232228;
+    --radius: 6px;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    --font-body: 'Inter', -apple-system, sans-serif;
 }
 
 /* Hide scrollbar but keep functionality */
 * {
-    scrollbar-width: none !important; /* Firefox */
-    -ms-overflow-style: none !important; /* IE and Edge */
-}
-
-*::-webkit-scrollbar {
-    display: none !important; /* Chrome, Safari, Opera */
-    width: 0 !important;
-    height: 0 !important;
-}
-
-html {
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-    overflow: -moz-scrollbars-none;
-}
-
-html::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-}
-
-body {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
 }
-
-body::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-}
+*::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+html { scrollbar-width: none !important; -ms-overflow-style: none !important; overflow: -moz-scrollbars-none; }
+html::-webkit-scrollbar { display: none !important; width: 0 !important; }
+body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+body::-webkit-scrollbar { display: none !important; width: 0 !important; }
 
 /* Highlighted text */
-::selection {
-    background-color: var(--uibg);
-    color: var(--textcolor);
-}
+::selection { background-color: var(--accent); color: #08080a; }
 
 /* Global font and resets */
 * {
-    font-family: 'Lato', sans-serif;
-    transition-duration: 0.5s;
+    font-family: var(--font-body);
+    transition-duration: 0.2s;
     outline: none;
     border: none;
     box-sizing: border-box;
@@ -84,56 +85,96 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
+    position: relative;
+}
+
+/* Subtle scanline texture — very low opacity, works on dark and light themes alike */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.018) 0px,
+        rgba(255,255,255,0.018) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    animation: scanlineDrift 9s linear infinite;
 }
 
 /* Hide elements */
-.hiddenUpload {
-    display: none;
-    visibility: hidden;
-}
+.hiddenUpload { display: none; visibility: hidden; }
 
-/* Header & Footer */
+/* ==========================================================================
+   Header & Footer — thin bracket-pill bars
+   ========================================================================== */
 header, footer {
     background-color: var(--uibg);
+    border: 1px solid var(--line);
     display: flex;
-    font-weight: 700;
-    padding: 0.7rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    padding: 0.65rem;
     width: 100%;
-    z-index: 1;
+    z-index: 5;
     justify-content: center;
     text-align: center;
 }
 header {
     top: 0;
-    border-radius: 0 0 20px 20px;
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
     position: fixed;
-    box-shadow: 0 5px 10px var(--uibg);
+    box-shadow: 0 1px 0 var(--accent);
 }
 footer.noscroll { position: fixed; overflow: hidden; }
 footer {
     bottom: 0;
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -5px 10px var(--uibg);
+    border-radius: 0;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -1px 0 var(--accent);
 }
 footer a, footer a:visited, header a, header a:visited {
-    margin: 0 1.5rem;
+    margin: 0 1.25rem;
     text-decoration: none;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 2px;
 }
-footer a:hover, header a:hover {
-    text-shadow: 2px 2px 6px var(--textcolor);
+footer a::after, header a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 100%;
+    bottom: -2px;
+    height: 1px;
+    background: var(--accent);
+    transition: right 0.18s ease;
 }
+footer a:hover::after, header a:hover::after { right: 0; }
+footer a:hover, header a:hover { color: var(--accent); text-shadow: none; }
 
 /* Responsive adjustments */
 @media only screen and (max-width: 768px) {
     header, footer { flex-direction: column; align-items: center; }
-    header { border-radius: 0; }
-    footer { border-radius: 0; }
     * { --margin: 12rem; }
 }
 
-/* Main container */
+/* ==========================================================================
+   Main container
+   ========================================================================== */
 main {
-    animation: 1.25s ease-in-out 0s 1 loadInAnimation;
+    animation: 0.6s ease-out 0s 1 loadInAnimation;
     align-items: center;
     flex-direction: column;
     display: flex;
@@ -144,120 +185,343 @@ main {
     margin-top: var(--margin);
     width: 90%;
     height: auto;
+    position: relative;
+    z-index: 3;
 }
 main#main.noscroll { justify-content: center; }
 
-/* Text elements */
-h1, h2, h3, p, a, label { margin: 0; padding: 0; text-shadow: var(--shadow); }
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+h1, h2, h3, p, a, label { margin: 0; padding: 0; text-shadow: none; }
 .samerow { display: flex; justify-content: center; gap: 0; flex-wrap: wrap; align-items: center; }
-h1 { font-size: 100px; }
-h2 { font-size: 60px; }
-h3 { font-size: 40px; }
-p, a { font-size: 24px; }
+h1 { font-family: var(--font-mono); font-weight: 800; font-size: 56px; letter-spacing: -0.01em; }
+h2 { font-family: var(--font-mono); font-weight: 700; font-size: 28px; letter-spacing: 0.01em; }
+h3 { font-family: var(--font-mono); font-weight: 700; font-size: 20px; }
+p, a { font-size: 16px; line-height: 1.5; font-weight: 400; }
 
-/* Buttons & inputs */
+/* Bracket eyebrow + divider — the section-header signature used across pages.
+   Wrap an h2 in .eyebrow for the "[ LABEL ]" mono treatment, or drop
+   .divider on its own between sections. Pure presentation, no JS hooks. */
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+}
+.eyebrow::before { content: "["; color: var(--text-dim); }
+.eyebrow::after { content: "]"; color: var(--text-dim); }
+.divider {
+    width: 100%;
+    max-width: 640px;
+    height: 1px;
+    margin: 2.5rem auto;
+    background: linear-gradient(90deg, transparent, var(--line) 15%, var(--line) 85%, transparent);
+    position: relative;
+}
+.divider::before {
+    content: "//";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 0 10px;
+}
+
+/* ==========================================================================
+   Buttons & inputs
+   ========================================================================== */
 button, input#websubmit.submit, input[type="submit"] {
     cursor: pointer;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.03em;
     background-color: var(--uibg);
+    color: var(--textcolor);
     border-color: var(--inputborder);
-    border-width: 2px;
-    border-radius: 10px;
+    border-width: 1px;
+    border-radius: var(--radius);
     border-style: solid;
-    padding: 7px;
-    margin: 10px 20px;
+    padding: 9px 16px;
+    margin: 10px 8px;
+    transition: background-color 0.15s, color 0.15s, transform 0.1s;
 }
 button:hover, input#websubmit.submit:hover, input[type="submit"]:hover {
-    filter: brightness(80%);
-    transform: scale(1.07);
+    filter: none;
+    background-color: var(--inputborder);
+    color: #08080a;
+    transform: translateY(-1px);
 }
+button:active, input#websubmit.submit:active, input[type="submit"]:active { transform: translateY(0); }
 
 input[type="text"], input[type="password"], select {
     width: 50%;
     background-color: var(--inputbg);
-    font-size: 20px;
-    padding: 0.8% 0.8%;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    padding: 10px 12px;
     text-align: center;
-    border-radius: 5px;
+    border-radius: var(--radius);
     margin: 10px;
-    border: 2px solid var(--inputborder);
-    transition: opacity 0.25s ease-in-out;
+    border: 1px solid var(--line);
+    transition: border-color 0.15s ease-in-out;
     opacity: 100%;
 }
-input[type="text"]:hover, input[type="password"]:hover, select:hover { opacity: 80%; }
-::placeholder { color: var(--textcolor); opacity: 0.4; }
+input[type="text"]:hover, input[type="password"]:hover, select:hover,
+input[type="text"]:focus, input[type="password"]:focus, select:focus { opacity: 100%; border-color: var(--accent); }
+::placeholder { color: var(--text-dim); opacity: 0.7; }
 
-/* Images & containers */
-img { width: 100%; aspect-ratio: auto; user-select: none; filter: drop-shadow(var(--shadow)); image-rendering: pixelated; }
-.img-container { display: flex; justify-content: center; align-items: center; flex-direction: row; gap: 0; flex-wrap: wrap; width: 6%; aspect-ratio: 1/1; margin: 2%; }
+/* ==========================================================================
+   Images & game/app cards
+   ========================================================================== */
+img { width: 100%; aspect-ratio: auto; user-select: none; filter: none; image-rendering: pixelated; }
+.img-container { display: flex; justify-content: center; align-items: center; flex-direction: row; gap: 0; flex-wrap: wrap; width: 6%; aspect-ratio: 1/1; margin: 2%; transition: transform 0.15s ease; }
+.img-container:hover { transform: translateY(-2px); }
 .img-container a { width: 100%; }
+
 .game, .suggest {
     width: 15%;
-    border-radius: 20px;
+    min-width: 120px;
+    border-radius: var(--radius);
     display: inline-block;
     background-color: var(--uibg);
-    margin: 15px;
+    border: 1px solid var(--line);
+    margin: 8px;
     cursor: pointer;
-    box-shadow: 0px 0px 5px 5px var(--uibg);
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s ease, transform 0.15s ease;
 }
-.game:hover, .suggest:hover { transform: scale(1.1); filter: brightness(85%); box-shadow: 0px 0px 5px 5px var(--uibg); }
-.game h1, .suggest h1 { font-size: 12px; float: right; margin: 3px 10px 3px 0; }
-.game img, .suggest img { width: 100%; border-radius: 20px; aspect-ratio: 1/1; }
-img.star { float: left; width: 10%; margin: 3px 0 3px 10px; }
+.game:hover, .suggest:hover {
+    transform: translateY(-3px);
+    filter: none;
+    border-color: var(--accent);
+    box-shadow: 0 4px 0 0 var(--line);
+}
+.game h1, .suggest h1 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    text-align: left;
+    float: none;
+    margin: 0;
+    padding: 6px 8px;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.game img, .suggest img { width: 100%; border-radius: 0; aspect-ratio: 1/1; display: block; }
+img.star { float: left; width: 10%; margin: 3px 0 3px 10px; filter: none; }
 
-/* Misc containers */
+/* ==========================================================================
+   Misc containers
+   ========================================================================== */
 #noscroll { overflow-y: hidden; justify-content: center; }
-#games, #pinned { width: 100%; justify-content: center; }
-.bookmarkletdiv { width: 30%; background-color: var(--uibg); box-shadow: 0px 0px 5px 5px var(--uibg); padding: 5px; margin: 15px; border-radius: 10px; display: inline-block; }
-.bookmarkletdiv a { font-size: 30px; }
+#games, #pinned { width: 100%; justify-content: center; display: flex; flex-wrap: wrap; gap: 0; }
+.bookmarkletdiv {
+    width: 30%;
+    min-width: 220px;
+    background-color: var(--uibg);
+    border: 1px solid var(--line);
+    box-shadow: none;
+    padding: 10px 5px;
+    margin: 8px;
+    border-radius: var(--radius);
+    display: inline-block;
+    transition: border-color 0.15s ease;
+}
+.bookmarkletdiv:hover { border-color: var(--accent); }
+.bookmarkletdiv a { font-family: var(--font-mono); font-size: 15px; font-weight: 600; }
 form { width: 100%; }
 .samerow.themebtns { width: 70%; }
-label { font-size: 20px; padding-left: 5px; }
+label { font-family: var(--font-mono); font-size: 13px; padding-left: 5px; color: var(--text-dim); }
 
-/* Popup & Toast */
-#popup { width: 50%; height: 40%; z-index: 99999999; position: absolute; top: 50%; left: 50vw; transform: translate(-50%, -50%); display: flex; flex-direction: column; background-color: var(--inputbg); border-color: var(--inputborder); border-width: 5px; border-radius: 10px; border-style: solid; justify-content: center; align-items: center; box-shadow: 0px 0px 5px 5px var(--uibg); }
+/* ==========================================================================
+   Popup & Toast
+   ========================================================================== */
+#popup {
+    width: 50%;
+    height: 40%;
+    z-index: 99999999;
+    position: absolute;
+    top: 50%; left: 50vw;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--uibg);
+    border-color: var(--line);
+    border-width: 1px;
+    border-radius: var(--radius);
+    border-style: solid;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
 #popup input { width: 90%; height: 30%; }
 #popup input[type=file] { height: auto; text-align-last: center; display: block; margin: 30px; }
-#popup h1 { font-size: 32px; }
+#popup h1 { font-size: 28px; }
 #popup #close { position: absolute; right: 10px; top: 10px; }
-#toast { position: fixed; top: 0; right: 0; margin: 10px; padding: 10px; background-color: var(--bg); border-radius: 10px; border-width: 10px; border-color: var(--inputborder); border-style: solid; z-index: 10000; text-align: center; opacity: 0; transition-duration: 1s; max-width: 30%; }
-#toast h1 { font-size: 20px; text-align: center; }
-#toast p { font-size: 16px; text-align: center; }
 
+#toast {
+    position: fixed;
+    top: 0; right: 0;
+    margin: 10px;
+    padding: 12px 16px;
+    background-color: var(--uibg);
+    border-radius: var(--radius);
+    border-width: 1px;
+    border-left-width: 3px;
+    border-color: var(--line);
+    border-left-color: var(--accent);
+    border-style: solid;
+    z-index: 10000;
+    text-align: left;
+    opacity: 0;
+    transition-duration: 1s;
+    max-width: 30%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+#toast h1 { font-family: var(--font-mono); font-size: 13px; text-align: left; letter-spacing: 0.02em; }
+#toast p { font-family: var(--font-body); font-size: 13px; text-align: left; color: var(--text-dim); margin-top: 4px; }
 
-/* ------------------- THEMES ------------------- */
+/* ==========================================================================
+   Terminal boot panel — the homepage signature element.
+   Pure presentation; wraps around existing #randomquote etc, no JS changes.
+   ========================================================================== */
+.boot-panel {
+    font-family: var(--font-mono);
+    text-align: left;
+    width: 100%;
+    max-width: 560px;
+    background: var(--uibg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0;
+    margin: 0 auto 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+.boot-panel-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+}
+.boot-panel-bar span.dot { color: var(--accent2); }
+.boot-panel-body { padding: 18px 20px 20px; }
+.boot-line { font-size: 13px; line-height: 1.9; text-align: left; white-space: pre; color: var(--text-dim); }
+.boot-line b { color: var(--textcolor); font-weight: 600; }
+.boot-line .ok { color: var(--accent2); }
+.boot-cursor { display: inline-block; width: 8px; height: 14px; background: var(--accent); vertical-align: -2px; animation: cursorBlink 1s step-end infinite; margin-left: 2px; }
+
+/* ==========================================================================
+   Content panel — used on text-heavy pages (about/contact/bookmarklets)
+   ========================================================================== */
+.panel {
+    width: 100%;
+    max-width: 640px;
+    background: var(--uibg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.75rem 2rem;
+    margin: 1rem auto;
+    text-align: left;
+}
+.panel p { text-align: left; color: var(--text-dim); }
+.panel p + p { margin-top: 0.75rem; }
+
+.dev-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    padding: 14px 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.dev-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.dev-card p { font-family: var(--font-mono); font-size: 13px; color: var(--textcolor); }
+.dev-card sl-avatar { --size: 64px; font-size: 1.5rem; }
+.dev-card sl-avatar::part(base) { border: 1px solid var(--line); background-color: var(--uibg); }
+
+.contact-link {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 22px;
+    margin: 6px;
+    border: 1px solid var(--inputborder);
+    border-radius: var(--radius);
+    background: var(--uibg);
+    transition: background-color 0.15s, color 0.15s, transform 0.1s;
+}
+.contact-link:hover { background: var(--inputborder); color: #08080a; transform: translateY(-1px); }
+
+/* ==========================================================================
+   THEMES — same selectors as before, values refreshed to pair with the
+   new component shapes above. setTheme()/settings.html untouched.
+   ========================================================================== */
 
 /* Main: GX-GamesCrack */
 body[theme=gx-gamescrack] {
-    --inputbg: #6B0000;
-    --inputborder: #8B0000;
-    --uibg: #8B0000;
-    --textcolor: #ffffff;
-    --bg: #0c0c0c;
-    --shadow: 0px 0px 4px #8B0000;
+    --inputbg: #202126;
+    --inputborder: #ff3b4e;
+    --uibg: #17181c;
+    --textcolor: #f3efe7;
+    --bg: #08080a;
+    --shadow: 0px 0px 0px transparent;
 }
 
 /* Other themes */
-body[theme=green] { --inputbg: #2c2c2c; --inputborder: #444; --uibg: #0a640a; --textcolor: #fff; --bg: #0c0c0c; --shadow: 0px 0px 4px #0a640a; }
-body[theme=mainnew] { --inputbg: #3c096c; --inputborder: #5a189a; --uibg: #240046bb; --textcolor: #fff; --bg: #10002b; }
-body[theme=threekho] { --inputbg: #28A018; --inputborder: #0A8F00; --uibg: #111111; --textcolor: #fff; --bg: #000000; }
-body[theme=art] { --inputbg: #0284d4; --inputborder: #0284d4; --uibg: #0e1213; --textcolor: #fff; --bg: #1a2023; }
-body[theme=dogcat] { --inputbg: #537294; --inputborder: #30719c; --uibg: #2a7491; --textcolor: #fff; --bg: url("/img/backgrounds/dogcat.svg"), rgb(26,127,158); }
-body[theme=custom] { --inputbg: #3c096c; --inputborder: #5a189a; --uibg: #240046; --textcolor: #fff; --bg: #10002b; }
-body[theme=light] { --inputbg: #2c2c2c; --inputborder: #444; --uibg: #ba5a00; --textcolor: #fff; --bg: #0c0c0c; }
-body[theme=dark] { --inputbg: #333333; --inputborder: #444444; --uibg: #242424; --textcolor: #fff; --bg: #0c0c0c; }
-body[theme=egamepass] { --inputbg: #4f6ed1; --inputborder: #5586e0; --uibg: #185494; --textcolor: #a7d3ff; --bg: #16416f; }
-body[theme=cools1te] { --inputbg: #a134dc; --inputborder: #b153e3; --uibg: #ab28cf; --textcolor: #d3a4fa; --bg: #8e14af; }
-body[theme=classic] { --inputbg: #3C4043; --inputborder: #fff; --uibg: #3C4043; --textcolor: #fff; --bg: #3C4043; }
+body[theme=green] { --inputbg: #1a1f1a; --inputborder: #2fbf5a; --uibg: #14181490; --textcolor: #f3efe7; --bg: #08080a; --shadow: none; }
+body[theme=mainnew] { --inputbg: #241a33; --inputborder: #9d6bd6; --uibg: #1a1424; --textcolor: #f3efe7; --bg: #0d0812; }
+body[theme=threekho] { --inputbg: #17281a; --inputborder: #34c94b; --uibg: #101210; --textcolor: #f3efe7; --bg: #060706; }
+body[theme=art] { --inputbg: #10222c; --inputborder: #2fa8e0; --uibg: #0d1417; --textcolor: #f3efe7; --bg: #0a0e10; }
+body[theme=dogcat] { --inputbg: #1b2a36; --inputborder: #3f8fae; --uibg: #16222b; --textcolor: #f3efe7; --bg: url("/img/backgrounds/dogcat.svg"), rgb(10,20,26); }
+body[theme=custom] { --inputbg: #241a33; --inputborder: #9d6bd6; --uibg: #1a1424; --textcolor: #f3efe7; --bg: #0d0812; }
+body[theme=light] { --inputbg: #201c18; --inputborder: #e08a2e; --uibg: #17140f; --textcolor: #f3efe7; --bg: #08070a; }
+body[theme=dark] { --inputbg: #1c1c1c; --inputborder: #3a3a3a; --uibg: #141414; --textcolor: #f3efe7; --bg: #08080a; }
+body[theme=egamepass] { --inputbg: #16233d; --inputborder: #4f7fd6; --uibg: #101a2e; --textcolor: #a7d3ff; --bg: #0a1220; }
+body[theme=cools1te] { --inputbg: #241130; --inputborder: #b153e3; --uibg: #190c22; --textcolor: #e3c3fa; --bg: #120817; }
+body[theme=classic] { --inputbg: #26292c; --inputborder: #6a6f75; --uibg: #1c1e20; --textcolor: #f3efe7; --bg: #141516; }
 
 /* Latte/Frappe/Macchiato/Mocha */
-body[theme=latte], body[theme=lattefalse] { --inputbg: #9ca0b0; --inputborder: #8c8fa1; --uibg: #ccd0da; --textcolor: #4c4f69; --bg: #eff1f5; --shadow: 0px 0px 4px #ccd0da; }
-body[theme=frappe], body[theme=frappefalse] { --inputbg: #737994; --inputborder: #838ba7; --uibg: #414559; --textcolor: #cad3f5; --bg: #303446; --shadow: 0px 0px 4px #414559; }
-body[theme=macchiato], body[theme=macchiatofalse] { --inputbg: #6e738d; --inputborder: #8087a2; --uibg: #363a4f; --textcolor: #cad3f5; --bg: #24273a; --shadow: 0px 0px 4px #363a4f; }
-body[theme=mocha], body[theme=mochafalse] { --inputbg: #6c7086; --inputborder: #7f849c; --uibg: #313244; --textcolor: #cdd6f4; --bg: #1e1e2e; --shadow: 0px 0px 4px #313244; }
+body[theme=latte], body[theme=lattefalse] { --inputbg: #ccd0da; --inputborder: #8839ef; --uibg: #e6e9ef; --textcolor: #4c4f69; --bg: #eff1f5; --shadow: none; }
+body[theme=frappe], body[theme=frappefalse] { --inputbg: #414559; --inputborder: #ca9ee6; --uibg: #292c3c; --textcolor: #cad3f5; --bg: #232634; --shadow: none; }
+body[theme=macchiato], body[theme=macchiatofalse] { --inputbg: #363a4f; --inputborder: #c6a0f6; --uibg: #1e2030; --textcolor: #cad3f5; --bg: #181926; --shadow: none; }
+body[theme=mocha], body[theme=mochafalse] { --inputbg: #313244; --inputborder: #cba6f7; --uibg: #181825; --textcolor: #cdd6f4; --bg: #11111b; --shadow: none; }
 
 /* Sunset/Mountains/Vaporwave/Seraph/Nighttime */
-body[theme=sunset], body[theme=sunsetfalse] { --inputbg:#537294; --inputborder:#30719c; --uibg:#2a7491; --textcolor:#fff; --bg:url("/img/backgrounds/sunset_theme.jpg"), rgb(59,67,78); --shadow:0px 0px 2px #a5dcf5; }
-body[theme=mountains], body[theme=mountainsfalse] { --inputbg:#d37f7f; --inputborder:#e28a8a; --uibg:#d38493; --textcolor:#fff; --bg:url("/img/backgrounds/mountains_theme.jpg"), #bf7483; --shadow:0px 0px 4px #bba29b; }
-body[theme=vaporwave], body[theme=vaporwavefalse] { --inputbg:#4b2d64; --inputborder:#74568d; --uibg:#51166d; --textcolor:#fff; --bg:url("/img/backgrounds/vaporwave_theme.jpg"), #61437a; --shadow:0px 0px 4px #000000; }
-body[theme=seraph], body[theme=seraphfalse] { --inputbg:#000; --inputborder:#fff; --uibg:#000; --textcolor:#fff; --bg:url("/img/backgrounds/seraph_theme.png"), #1c1a1e; --shadow:0px 0px 4px #fff; }
-body[theme=nighttime], body[theme=nighttimefalse] { --inputbg:#29374d; --inputborder:#fff; --uibg:#29374d; --textcolor:#fff; --bg:url("/img/backgrounds/nighttime_theme.png"), #28272a; --shadow:0px 0px 4px #fff; }
+body[theme=sunset], body[theme=sunsetfalse] { --inputbg:#2a3a4a; --inputborder:#e08a4f; --uibg:#1c2833; --textcolor:#f3efe7; --bg:url("/img/backgrounds/sunset_theme.jpg"), rgb(20,24,28); --shadow:none; }
+body[theme=mountains], body[theme=mountainsfalse] { --inputbg:#3a2830; --inputborder:#d38493; --uibg:#241a1e; --textcolor:#f3efe7; --bg:url("/img/backgrounds/mountains_theme.jpg"), #1a1214; --shadow:none; }
+body[theme=vaporwave], body[theme=vaporwavefalse] { --inputbg:#2a1c3a; --inputborder:#c77dff; --uibg:#1c1224; --textcolor:#f3efe7; --bg:url("/img/backgrounds/vaporwave_theme.jpg"), #150e1c; --shadow:none; }
+body[theme=seraph], body[theme=seraphfalse] { --inputbg:#141414; --inputborder:#f3efe7; --uibg:#0c0c0c; --textcolor:#f3efe7; --bg:url("/img/backgrounds/seraph_theme.png"), #0a0a0a; --shadow:none; }
+body[theme=nighttime], body[theme=nighttimefalse] { --inputbg:#19222f; --inputborder:#4f7fd6; --uibg:#121924; --textcolor:#f3efe7; --bg:url("/img/backgrounds/nighttime_theme.png"), #0d1119; --shadow:none; }
